@@ -1,9 +1,9 @@
 Work Log
 
 June 1 2020
-Eric:
+Eric: Created menu prototype
 Bryan:
 
 June 2 2020
-Eric
+Eric: Started work on champion and ability classes, created github
 Bryan

@@ -1,6 +1,7 @@
 import java.awt.*; 
 import javax.swing.*;
 import java.awt.event.*; 
+import java.util.ArrayList;
 
 public class Board extends JPanel implements ActionListener, MouseListener, MouseMotionListener{
 	
@@ -14,7 +15,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private Tile[][] field;
 	private Champion pickedChamp = null;
 	private ArrayList<Champion> champs;
-	private int w = this.width(), h = this.height();
+	private int w = this.getWidth(), h = this.getHeight();
 	private int mX, mY, originalX, originalY;
 	
 	public Board(Player player){
@@ -54,15 +55,20 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	}
 	
 	public void summonChamp(int champ, int level){
+		boolean summoned = false;
+		
 		for (int i=0; i<10; i++){
 			for (int j=0; j<3; j++){
-				if (board[i][j]==null){
+				if (board[i][j]==null && !summoned){
 					board[i][j] = new Champion(champ, i*100, h/2+j*100, level);
 					champs.add(board[i][j]);
 					field[i][j].addChamp();
+					summoned = true;
+					break;
 				}
 			}
 		}
+		repaint();
 	}
 	
 	public void paintComponent(Graphics g){
@@ -118,10 +124,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		for (int i=0; i<10; i++){
 			for (int j=0; j<3; j++){
 				if (field[i][j].contains(mX, mY) && pickedChamp!=null){
-					if (field[i][j].isEmpty){
+					if (field[i][j].isEmpty()){
 						pickedChamp.setPos(field[i][j].getX(), field[i][j].getY());
 						field[i][j].addChamp();
-						champs[i][j]=pickedChamp;
+						board[i][j]=pickedChamp;
 						pickedChamp=null;
 					}else{
 						pickedChamp.setPos(originalX, originalY);
@@ -135,9 +141,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	//Mouse Motion Listener
 	public void mouseDragged(MouseEvent e) {
 
-		if(pickedTile!=null) {
-			pickedTile.setX(e.getX());
-			pickedTile.setY(e.getY());
+		if(pickedChamp!=null) {
+			pickedChamp.setPos(e.getX(), e.getY());
 		}
 		repaint();
 	}
@@ -163,10 +168,10 @@ class Champion{
 				ap = 150;
 				break;
 			case 1: 
-				image = new ImageIcon("cho'gath.png");
+				image = new ImageIcon("wukong.png");
 				break;
 			case 2:
-				image = new ImageIcon("wukong.png");
+				image = new ImageIcon("cho'gath.png");
 				break;
 			case 3:
 				image = new ImageIcon("qiyana.png");

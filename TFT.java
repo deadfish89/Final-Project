@@ -8,7 +8,7 @@ public class TFT{
 		Player player = new Player();
 		Board board = new Board(player);
 		
-		JFrame frame = new JFrame();
+		JFrame frame = new JFrame("Teamfight Tactics");
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(board, BorderLayout.CENTER);

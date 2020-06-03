@@ -10,7 +10,7 @@ public class TFT{
 		JFrame frame = new JFrame();
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().add(new Board(), BorderLayout.CENTER);
+		frame.getContentPane().add(new Board(player), BorderLayout.CENTER);
 		frame.getContentPane().add(new SouthPanel(player), BorderLayout.SOUTH);
 		frame.getContentPane().add(new Bench(player), BorderLayout.NORTH);
 		frame.pack();

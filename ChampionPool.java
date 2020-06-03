@@ -3,19 +3,19 @@ import java.util.Arrays;
 public class ChampionPool{
 	
 	private static int[] champs = new int[19];
-	private static int[] common, rare, epic;
+	private static int[] commons, rares, epics;
 	private static Player player;
 	
 	public ChampionPool(Player player){
 		this.player = player;
-		common = new int[] {0,1,2,3,4,5,6,7};
-		rare = new int[] {8,9,10,11,12,13,14};
-		epic = new int[] {15,16,17,18};
+		commons = new int[] {0,1,2,3,4,5,6,7};
+		rares = new int[] {8,9,10,11,12,13,14};
+		epics = new int[] {15,16,17,18};
 		champs = new int[] {30,30,30,30,30,30,30,30,30,20,20,20,20,20,20,20,10,10,10,10};
 	}
 	
 	public static int getNext(){
-		int ret, common, rare, epic, level = player.getLevel();
+		int ret, common = 0, rare = 0, epic = 0, level = player.getLevel();
 		
 		switch (level){
 			case 1: 
@@ -53,12 +53,12 @@ public class ChampionPool{
 		while (true){
 			if (rarity<=rare+epic){
 				if (rarity<=epic){
-					ret = epic[(int)(Math.random()*4)];
+					ret = epics[(int)(Math.random()*4)];
 				}else{
-					ret = rare[(int)(Math.random()*7)];
+					ret = rares[(int)(Math.random()*7)];
 				}
 			}else{
-				ret = common[(int)(Math.random()*8)];
+				ret = commons[(int)(Math.random()*8)];
 			}
 			
 			if (champs[ret]>0){
@@ -70,4 +70,3 @@ public class ChampionPool{
 		return ret;
 	}
 	
-}

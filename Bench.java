@@ -5,11 +5,13 @@ import java.awt.event.*;
 public class Bench extends JPanel implements MouseListener{
 	
 	private Player player;
+	private Board board;
 	private ImageIcon bg;
 	private JButton reroll;
 	
-	public Bench(Player player){
+	public Bench(Player player, Board board){
 		this.player = player;
+		this.board = board;
 		bg = new ImageIcon("Bench.jpg");
 		reroll = new JButton("Reroll");
 		reroll.setSize(300, 200);
@@ -34,6 +36,8 @@ public class Bench extends JPanel implements MouseListener{
 			g.drawLine(i*100, 0, i*100, h);
 		}
 	}
+	
+
 	
 	public void mousePressed(MouseEvent e) {
 		

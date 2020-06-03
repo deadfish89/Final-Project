@@ -17,6 +17,10 @@ public class Bench extends JPanel implements MouseListener{
 		this.setPreferredSize(new Dimension(1000,100));
 	}
 	
+	public void addChampion(int champ){
+		
+	}
+	
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		int h = this.getHeight(), w = this.getWidth();

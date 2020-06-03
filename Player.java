@@ -27,11 +27,6 @@ public class Player{
 		}
 	}
 	
-	public int getChamp(int index){
-		if (index<=champs.size()-1) return champs.get(i);
-		return -1;
-	}
-	
 	public int getNChamps(){
 		return champs.size();
 	}

@@ -5,15 +5,17 @@ import java.awt.event.*;
 public class SouthPanel extends JPanel implements ActionListener{
 	
 	private Player player;
+	private Board board;
 	
-	public SouthPanel(Player player){
+	public SouthPanel(Player player, Board board){
 		this.player = player;
+		this.board = board;
 		
 		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(1000,230));
 		
-		this.add(new Bench(player), BorderLayout.CENTER);
-		this.add(new HUD(player), BorderLayout.SOUTH);
+		this.add(new Bench(player, board), BorderLayout.CENTER);
+		this.add(new HUD(player, board), BorderLayout.SOUTH);
 	}
 	
 	public void paintComponent(Graphics g){
@@ -29,16 +31,18 @@ public class SouthPanel extends JPanel implements ActionListener{
 class HUD extends JPanel implements ActionListener{
 	
 	private Player player;
+	private Board board;
 	private ImageIcon bg;
 	
-	public HUD(Player player){
+	public HUD(Player player, Board board){
 		this.player = player;
+		this.board = board;
 		this.setBackground(Color.black);
 		this.setPreferredSize(new Dimension(1000,130));
 		this.setLayout(new BorderLayout());
 		this.add(new leftPanel(player), BorderLayout.WEST);
 		this.add(new leftPanel2(), BorderLayout.CENTER);
-		this.add(new shop(player), BorderLayout.EAST);
+		this.add(new shop(player, board), BorderLayout.EAST);
 	}
 	
 	public void paintComponent(Graphics g){
@@ -124,13 +128,15 @@ class leftPanel2 extends JPanel{
 class shop extends JPanel implements ActionListener{
 	
 	private Player player;
+	private Board board;
 	private JButton item1,item2, item3, item4, item5;
-	private ChampionPool champPool;
+	//private Pool champPool;
 	
-	public shop(Player player){
-		champPool = new ChampionPool(player);
+	public shop(Player player, Board board){
+		//champPool = new Pool(player);
 		
 		this.player = player;
+		this.board = board;
 		this.setPreferredSize(new Dimension(700,130));
 		this.setLayout(new GridLayout(1,5));
 		this.setBackground(Color.black);
@@ -159,11 +165,20 @@ class shop extends JPanel implements ActionListener{
 		items[18] = scaleImage(new ImageIcon("yasuo.png"));
 		
 		//these are filler images
+		/*
 		item1 = new JButton(items[champPool.getNext()]);
 		item2 = new JButton(items[champPool.getNext()]);
 		item3 = new JButton(items[champPool.getNext()]);
 		item4 = new JButton(items[champPool.getNext()]);
 		item5 = new JButton(items[champPool.getNext()]);
+		*/
+		
+		//testing
+		item1 = new JButton(items[1]);
+		item2 = new JButton(items[2]);
+		item3 = new JButton(items[3]);
+		item4 = new JButton(items[4]);
+		item5 = new JButton(items[5]);
 		
 		this.add(item1);
 		this.add(item2);
@@ -193,15 +208,15 @@ class shop extends JPanel implements ActionListener{
 	
 	public void actionPerformed(ActionEvent e){
 		if(e.getSource()==item1){
-			
+			board.summonChamp(1, 1);
 		}else if (e.getSource()==item2){
-
+			board.summonChamp(2, 1);
 		}else if (e.getSource()==item3){
-
+			board.summonChamp(3, 1);
 		}else if (e.getSource()==item4){
-
+			board.summonChamp(4, 1);
 		}else if (e.getSource()==item5){
-
+			board.summonChamp(5, 1);
 		}
 	}
 	

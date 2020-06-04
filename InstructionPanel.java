@@ -14,20 +14,20 @@ class InstructionPanel extends JPanel implements ActionListener{
 		returnMenu.addActionListener(this);
 		this.setBackground(Color.WHITE);
         	this.setLayout(null);
-		picture1.setBounds(700,200,700,300);
+		picture1.setBounds(540,0,700,300);
 		returnMenu.setBounds(50,800,200,100);
 		this.add(picture1);
 		this.add(returnMenu);
 	}
 	public void paintComponent(Graphics g){
         	super.paintComponent(g);
-        	g.setFont(new Font("Open Sans",Font.BOLD,80));
-        	g.drawString("Instructions",550,100);
-		g.setFont(new Font("Open Sans",Font.BOLD,40));
-		g.drawString("Buy champions from the shop",50,300);
-		g.drawString("Each champion has traits. Having champions",500,500); 
-		g.drawString("with the same traits gives bonuses.",500,550);
-		g.drawString("Combine 3 of the same champion to make a more powerful version",50,700);
+        	g.setFont(new Font("Open Sans",Font.BOLD,50));
+        	g.drawString("Instructions",450,50);
+		g.setFont(new Font("Open Sans",Font.PLAIN,40));
+		g.drawString("Buy champions from the shop",10,200);
+		g.drawString("Each champion has traits. Having champions",500,300); 
+		g.drawString("with the same traits gives bonuses.",500,350);
+		g.drawString("Combine 3 of the same champion to make a more powerful version",50,450);
     	}
     	public void actionPerformed(ActionEvent event) {
             if(event.getSource()==returnMenu){

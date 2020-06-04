@@ -15,7 +15,7 @@ public class TFT{
 		frame.repaint();
 		Menu menu = new Menu();
 		frame.setVisible(true);
-		frame.setSize(1500,1000);
+		frame.setSize(1300,700);
 	    	frame.getContentPane().add(menu,BorderLayout.CENTER);
 		frame.revalidate();
 		frame.repaint();

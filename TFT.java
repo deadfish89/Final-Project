@@ -10,6 +10,9 @@ public class TFT{
 		LoadMenu();
 	}
 	public static void LoadMenu(){
+		frame.getContentPane().removeAll();
+		frame.revalidate();
+		frame.repaint();
 		Menu menu = new Menu();
 		frame.setVisible(true);
 		frame.setSize(1500,1000);

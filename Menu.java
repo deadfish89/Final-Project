@@ -27,15 +27,15 @@ class Menu extends JPanel implements ActionListener {
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-        g.setFont(new Font("Helvetica",Font.PLAIN,80));
+        g.setFont(new Font("Open Sans",Font.BOLD,80));
         g.drawString("Single Player",500,475);
     }
     public void actionPerformed(ActionEvent event) {
             if(event.getSource()==play){
-                JOptionPane.showMessageDialog(null, "That was an exit button", "My exit message",JOptionPane.WARNING_MESSAGE );
+		TFT.LoadGame();
             }
             if(event.getSource()==instruction){
-                JOptionPane.showMessageDialog(null, "That was an exit button", "My exit message",JOptionPane.WARNING_MESSAGE );
+                TFT.LoadInstructions();
             }
     }
 }

@@ -15,7 +15,7 @@ class InstructionPanel extends JPanel implements ActionListener{
 		this.setBackground(Color.WHITE);
         	this.setLayout(null);
 		picture1.setBounds(540,0,700,300);
-		returnMenu.setBounds(50,800,200,100);
+		returnMenu.setBounds(1000,500,200,100);
 		this.add(picture1);
 		this.add(returnMenu);
 	}

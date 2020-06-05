@@ -24,6 +24,8 @@ class Menu extends JPanel implements ActionListener {
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
+	g.setFont(new Font("Open Sans",Font.PLAIN,20));
+	g.drawString("By:Bryan Jiang and Eric Chen",1000,650);
     }
     public void actionPerformed(ActionEvent event) {
             if(event.getSource()==play){

@@ -1,7 +1,6 @@
 import java.util.Arrays;
 
 public class ChampionPool{
-	
 	private static int[] champs = new int[19];
 	private static int[] commons, rares, epics;
 	private static Player player;
@@ -16,7 +15,6 @@ public class ChampionPool{
 	
 	public int getNext(){
 		int ret, common = 0, rare = 0, epic = 0, level = player.getLevel();
-		
 		switch (level){
 			case 1: 
 				common = 100; rare = 0; epic = 0;
@@ -59,16 +57,16 @@ public class ChampionPool{
 				}
 			}else{
 				ret = commons[(int)(Math.random()*7)];
-				System.out.println("ret " + ret);
-
 			}
 			
 			if (champs[ret]>0){
 				champs[ret]--;
 				break;
+			}else {
+				System.out.println("NO MORE " + ret);
 			}
 		}
-		
+		System.out.println("champion: " + ret);
 		return ret;
 	}
 	

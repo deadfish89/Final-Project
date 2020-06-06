@@ -4,33 +4,15 @@ public class Player{
 	
 	private int gold, xp, level, health, levelUp;
 	private ArrayList<Integer> champs = new ArrayList<>();
-	boolean inferno, glacial, tank, blademaster, mage, void1, brawler; //need to add a get traits method or smth
 
 	public Player(){
-		gold = 50;
+		gold = 1000;
 		xp = 0;
 		level = 1;
 		health = 100;
 		levelUp = 4;
 	}
-	
-	public void addChamp(int champ){
-		champs.add(champ);
-	}
-	
-	public void removeChamp(int champ){
-		for (int i=0; i<champs.size(); i++){
-			if (champs.get(i)==champ){
-				champs.remove(i);
-				break;
-			}
-		}
-	}
-	
-	public int getNChamps(){
-		return champs.size();
-	}
-	
+
 	public void gainGold(int gold){
 		this.gold+=gold;
 	}

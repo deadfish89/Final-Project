@@ -22,6 +22,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private int mX, mY, originalX, originalY;
 	
 	public Board(Player player){
+		
 		//panel
 		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(1000,800)); 
@@ -95,7 +96,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		//champions on the board
 		for (int i=0; i<10; i++){
 			for (int j=0; j<3; j++){
-				if (board[i][j]!=null){
+				if (board[i][j]!=null && board[i][j].isAlive()){
 					board[i][j].myDraw(g);
 				}else{
 					field[i][j].myDraw(g);
@@ -257,3 +258,586 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	
 }
 
+class Champion{
+	static boolean[] assassin = new boolean[1], blademaster = new boolean[3], sorcerer = new boolean[6], warden = new boolean[3], marksmen = new boolean[4], brawler = new boolean[3];
+	static boolean[] elemental = new boolean[7], glacial = new boolean[2], demon = new boolean[3], imperial = new boolean[2], void1 = new boolean[3], hextech = new boolean[2], monkey = new boolean[1];
+	static boolean hasVoid, hasDemon, hasHextech, hasGlacial, hasBlademaster;
+	
+	private boolean isAlive = true;
+	
+	private int x, y;
+	private ImageIcon image;
+	private int hp=0, lvl=0, ad=0, ap=0, as = 0, armor = 0, curHP = 0, mana = 0, curMana = 0;
+	
+	private int count;
+	
+	public Champion(int champion, int x, int y, int level){
+		count = 0;
+		this.x = x;
+		this.y = y;
+				
+		switch (champion){
+			case 0:
+				image = new ImageIcon("annie.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				sorcerer[0] = true;
+				elemental[0] = true;
+				
+				for (int i=0; i<sorcerer.length; i++){
+					if (sorcerer[i]) count++;
+				}
+				if (count==6) ap*=2;
+				else if (count>=3) ap*=1.5;
+				
+				count = 0;
+				for (int i=0; i<elemental.length; i++){
+					if (elemental[i]) count++;
+				}
+				if (count==7) count=0;//something
+				else if (count>=5) count=0;//something
+				break;
+			case 1: 
+				image = new ImageIcon("wukong.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				brawler[0] = true;
+				monkey[0] = true;
+				
+				for (int i=0; i<brawler.length; i++){
+					if (brawler[i]) count++;
+				}
+				if (count==3) hp*=2;
+				
+				if (monkey[0]) armor*=2;
+				break;
+			case 2:
+				image = new ImageIcon("cho'gath.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				brawler[1] = true;
+				void1[0] = true;
+				
+				for (int i=0; i<brawler.length; i++){
+					if (brawler[i]) count++;
+				}
+				if (count==3) hp*=2;
+				
+				count = 0;
+				for (int i=0; i<void1.length; i++){
+					if (void1[i]) count++;
+				}
+				if (count>=3) hasVoid = true;
+				break;
+			case 3:
+				image = new ImageIcon("vel'koz.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				sorcerer[0] = true;
+				void1[1] = true;
+				
+				for (int i=0; i<sorcerer.length; i++){
+					if (sorcerer[i]) count++;
+				}
+				if (count==6) ap*=2;
+				else if (count>=3) ap*=1.5;
+				
+				count = 0;
+				for (int i=0; i<void1.length; i++){
+					if (void1[i]) count++;
+				}
+				if (count>=3) hasVoid = true;
+				break;
+			case 4: 
+				image = new ImageIcon("brand.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				sorcerer[1] = true;
+				elemental[1] = true;
+				
+				for (int i=0; i<sorcerer.length; i++){
+					if (sorcerer[i]) count++;
+				}
+				if (count==6) ap*=2;
+				else if (count>=3) ap*=1.5;
+				
+				count = 0;
+				for (int i=0; i<elemental.length; i++){
+					if (elemental[i]) count++;
+				}
+				if (count==7) count=0;//something
+				else if (count>=5) count=0;//something
+				break;
+			case 5: 
+				image = new ImageIcon("lux.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				sorcerer[2] = true;
+				elemental[2] = true;
+				
+				for (int i=0; i<sorcerer.length; i++){
+					if (sorcerer[i]) count++;
+				}
+				if (count==6) ap*=2;
+				else if (count>=3) ap*=1.5;
+				
+				count = 0;
+				for (int i=0; i<elemental.length; i++){
+					if (elemental[i]) count++;
+				}
+				if (count==7) count=0;//something
+				else if (count>=5) count=0;//something
+				break;
+			case 6: 
+				image = new ImageIcon("nautilus.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				warden[0] = true;
+				elemental[3] = true;
+				
+				for (int i=0; i<warden.length; i++){
+					if (warden[i]) count++;
+				}
+				if (count==3) armor*=3;
+			    else if (count==2) armor*=2;
+				else if (count==1) armor*=1.5;
+				
+				count = 0;
+				for (int i=0; i<elemental.length; i++){
+					if (elemental[i]) count++;
+				}
+				if (count==7) count=0;//something
+				else if (count>=5) count=0;//something
+				break;
+			case 7:
+				image = new ImageIcon("syndra.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				sorcerer[3] = true;
+				demon[0] = true;
+				
+				for (int i=0; i<sorcerer.length; i++){
+					if (sorcerer[i]) count++;
+				}
+				if (count==6) ap*=2;
+				else if (count>=3) ap*=1.5;
+				
+				count = 0;
+				for (int i=0; i<demon.length; i++){
+					if (demon[i]) count++;
+				}
+				if (count==3) hasDemon = true;
+				break;
+			case 8:
+				image = new ImageIcon("varus.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				marksmen[0] = true;
+				demon[1] = true;
+				
+				for (int i=0; i<marksmen.length; i++){
+					if (marksmen[i]) count++;
+				}
+				if (count==4) as*=2;
+				else if (count>=2) as*=1.5;
+				
+				count = 0;
+				for (int i=0; i<demon.length; i++){
+					if (demon[i]) count++;
+				}
+				if (count==3) hasDemon = true;
+				break;
+			case 9:
+				image = new ImageIcon("veigar.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				sorcerer[4] = true;
+				demon[2] = true;
+				
+				for (int i=0; i<sorcerer.length; i++){
+					if (sorcerer[i]) count++;
+				}
+				if (count==6) ap*=2;
+				else if (count>=3) ap*=1.5;
+				
+				count = 0;
+				for (int i=0; i<demon.length; i++){
+					if (demon[i]) count++;
+				}
+				if (count==3) hasDemon = true;
+				break;
+			case 10: 
+				image = new ImageIcon("vi.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				brawler[2] = true;
+				hextech[0] = true;
+				
+				for (int i=0; i<brawler.length; i++){
+					if (brawler[i]) count++;
+				}
+				if (count==3) hp*=2;
+				
+				count = 0;
+				for (int i=0; i<hextech.length; i++){
+					if (hextech[i]) count++;
+				}
+				if (count==2) hasHextech = true;
+				break;
+			case 11:
+				image = new ImageIcon("qiyana.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				assassin[0] = true;
+				elemental[4] = true;
+				
+				for (int i=0; i<assassin.length; i++){
+					if (assassin[i]) count++;
+				}
+				if (count==3) hp*=2;
+				
+				count = 0;
+				for (int i=0; i<elemental.length; i++){
+					if (elemental[i]) count++;
+				}
+				if (count==7) count=0;//something
+				else if (count>=5) count=0;//something
+				break;
+			case 12: 
+				image = new ImageIcon("riven.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				blademaster[0] = true;
+				imperial[0] = true;
+				
+				for (int i=0; i<blademaster.length; i++){
+					if (blademaster[i]) count++;
+				}
+				if (count==3) hasBlademaster = true;
+				
+				count = 0;
+				for (int i=0; i<imperial.length; i++){
+					if (imperial[i]) count++;
+				}
+				if (count==2){
+					ad*=2;
+					ap*=2;
+					as*=2;
+				}
+
+				break;
+			case 13:
+				image = new ImageIcon("braum.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				warden[1] = true;
+				glacial[0] = true;
+				
+				for (int i=0; i<warden.length; i++){
+					if (warden[i]) count++;
+				}
+				if (count==3) armor*=3;
+			    else if (count==2) armor*=2;
+				else if (count==1) armor*=1.5;
+				
+				count = 0;
+				for (int i=0; i<glacial.length; i++){
+					if (glacial[i]) count++;
+				}
+				if (count==2) hasGlacial = true;
+				break;
+			case 14:
+				image = new ImageIcon("darius.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				warden[2] = true;
+				imperial[1] = true;
+				
+				for (int i=0; i<warden.length; i++){
+					if (warden[i]) count++;
+				}
+				if (count==3) armor*=3;
+			    else if (count==2) armor*=2;
+				else if (count==1) armor*=1.5;
+				
+				count = 0;
+				for (int i=0; i<imperial.length; i++){
+					if (imperial[i]) count++;
+				}
+				if (count==2){
+					ad*=2;
+					ap*=2;
+					as*=2;
+				}
+				break;
+			case 15:
+				image = new ImageIcon("kassadin.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				blademaster[1] = true;
+				void1[2] = true;
+				
+				for (int i=0; i<blademaster.length; i++){
+					if (blademaster[i]) count++;
+				}
+				if (count==3) hasBlademaster = true;
+				
+				count = 0;
+				for (int i=0; i<void1.length; i++){
+					if (void1[i]) count++;
+				}
+				if (count>=3) hasVoid = true;
+				break;
+			case 16:
+				image = new ImageIcon("sivir.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				marksmen[2] = true;
+				elemental[5] = true;
+				
+				for (int i=0; i<marksmen.length; i++){
+					if (marksmen[i]) count++;
+				}
+				if (count==4) as*=2;
+				else if (count>=2) as*=1.5;
+				
+				count = 0;
+				for (int i=0; i<elemental.length; i++){
+					if (elemental[i]) count++;
+				}
+				if (count==7) count=0;//something
+				else if (count>=5) count=0;//something
+				break;
+			case 17:
+				image = new ImageIcon("jinx.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				marksmen[3] = true;
+				hextech[1] = true;
+				
+				for (int i=0; i<marksmen.length; i++){
+					if (marksmen[i]) count++;
+				}
+				if (count==4) as*=2;
+				else if (count>=2) as*=1.5;
+				
+				count = 0;
+				for (int i=0; i<hextech.length; i++){
+					if (hextech[i]) count++;
+				}
+				if (count==2) hasHextech = true;
+				break;
+			case 18:
+				image = new ImageIcon("yasuo.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				mana = 100;
+				blademaster[2] = true;
+				elemental[6] = true;
+				
+				for (int i=0; i<blademaster.length; i++){
+					if (blademaster[i]) count++;
+				}
+				if (count==3) hasBlademaster = true;
+				
+				count = 0;
+				for (int i=0; i<elemental.length; i++){
+					if (elemental[i]) count++;
+				}
+				if (count==7) count=0;//something
+				else if (count>=5) count=0;//something
+				break;
+			case 19:
+				image = new ImageIcon("tibbers.png");
+				hp = 1500;
+				ad = 100;
+				ap = 150;
+				as = 1;
+				armor = 30;
+				break;	
+		}
+		//for every level they gain 30% of each stat
+		for (int i=0; i<lvl; i++){
+			hp+=hp*0.3;
+			ad+=ad*0.3;
+			ap+=ap*0.3;
+			as = 1;
+		}
+		curHP = hp;
+	}
+	
+	public void takeDmg(int dmg){
+		curHP-=dmg;
+		if (curHP<=0) isAlive = false;
+	}
+	
+	public int autoAttack(){
+		curMana+=10;
+		return ad;
+	}
+	
+	public int getAS(){
+		return as;
+	}
+	
+	public int useAbility(){
+		int dmg = 0;
+		if (curMana>=mana){
+			curMana = 0;
+			return dmg;
+		}else {
+			return -1;
+		}
+	}
+	
+	public int getCurMana(){
+		return curMana;
+	}
+	
+	public int getMaxMana(){
+		return mana;
+	}
+
+	public boolean isAlive(){
+		return isAlive;
+	}
+	
+	public void setPos(int x, int y){
+		this.x = x;
+		this.y = y;
+	}
+	
+	public int getX(){
+		return x;
+	}
+	
+	public int getY(){
+		return y;
+	}
+	
+	//if mouse is hovering
+	public boolean contains(int mX, int mY) {
+    	return (mX>=x && mX<x+100 && mY>=y && mY<y+100);
+    }
+	
+	//custom draw at x and y
+	public void myDraw(Graphics g) {
+    	g.drawImage(image.getImage(), x, y, null);
+    }
+}
+
+class Tile{
+	
+	private int x, y;
+	private boolean isEmpty;
+	
+	public Tile(int x,int y){
+		this.x = x;
+		this.y = y;
+		isEmpty = true;
+	}
+	
+	public int getX(){
+		return x;
+	}
+	
+	public int getY(){
+		return y;
+	}
+	
+	public boolean isEmpty(){
+		return isEmpty;
+	}
+	
+	public void addChamp(){
+		isEmpty = false;
+	}
+	
+	public void removeChamp(){
+		isEmpty = true;
+	}
+	
+	//if mouse is hovering
+	public boolean contains(int mX, int mY) {
+    	return (mX>=x && mX<x+100 && mY>=y && mY<y+100);
+    }
+	
+	public void myDraw(Graphics g) {
+    	g.drawRect(x, y, 100, 100);
+    }
+}

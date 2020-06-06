@@ -1,20 +1,37 @@
-Annie Inferno Sorc Epic r
-Ashe Glacial Ranger r
-Brand Inferno Sorc r
-Braum Glacial Juggernaut e
-Chogath Void Brawler r
-Darius q
-Jinx passive
-Kassadin e
-Khazix q
-Lux q
-Nautilus r
-Qiyana q
-Riven r
-Sivir w
-Syndra q
-Varus q
-Veigar r
-Vi r
-Wukong r
-Yasuo r
+Annie Elemental Sorcerer R
+Ashe Glacial Ranger R
+Brand Elemental Sorcerer R
+Braum Glacial Warden E
+Chogath Void Brawler R
+Darius Imperial Warden Q
+Jinx Hextech Marksman Passive
+Kassadin Void Blademaster E
+Khazix Void Assassin Q
+Lux Elemental Sorcerer Q
+Nautilus Elemental Warden R
+Qiyana Elemental Assasin R
+Riven Imperial Blademaster R
+Sivir Elemental Blademaster W
+Syndra Demon Sorcerer Q
+Varus Demon Marksman Q
+Veigar Demon Sorcerer R
+Vi Hextech Brawler R
+Wukong Monkey Brawler R
+Yasuo Elemental Blademaster R
+
+Origins
+Elemental: Annie Brand Lux Nautilus Qiyana Sivir Yasuo
+Glacial: Ashe Braum
+Demon: Syndra Varus Veigar
+Imperial: Darius Riven
+Void: Khazix Kassadin Velkoz Chogath
+Hextech: Jinx Vi
+Monkey(probably changing): Wukong
+
+Classes:
+Sorcerer: Annie Brand Lux Syndra Veigar Velkoz
+Marksman: Ashe Varus Jinx Sivir 
+Warden: Nautilus Braum Darius
+Brawler: Wukong Vi Chogath
+Assassin: Khazix Qiyana
+Blademaster: Yasuo Kassadin Riven

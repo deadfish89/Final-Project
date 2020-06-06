@@ -12,9 +12,8 @@ public class SouthPanel extends JPanel implements ActionListener{
 		this.board = board;
 		
 		this.setLayout(new BorderLayout());
-		this.setPreferredSize(new Dimension(1000,230));
+		this.setPreferredSize(new Dimension(1000,130));
 		
-		this.add(new Bench(player, board), BorderLayout.CENTER);
 		this.add(new HUD(player, board), BorderLayout.SOUTH);
 	}
 	
@@ -27,4 +26,3 @@ public class SouthPanel extends JPanel implements ActionListener{
 	}
 	
 }
-

@@ -8,13 +8,13 @@ public class ChampionPool{
 	
 	public ChampionPool(Player player){
 		this.player = player;
-		commons = new int[] {0,1,2,3,4,5,6,7};
-		rares = new int[] {8,9,10,11,12,13,14};
-		epics = new int[] {15,16,17,18};
+		commons = new int[] {12,13,14,15,16,17,18};
+		rares = new int[] {4,5,6,7,8,9,10,11};
+		epics = new int[] {0,1,2,3};
 		champs = new int[] {30,30,30,30,30,30,30,30,30,20,20,20,20,20,20,20,10,10,10,10};
 	}
 	
-	public static int getNext(){
+	public int getNext(){
 		int ret, common = 0, rare = 0, epic = 0, level = player.getLevel();
 		
 		switch (level){
@@ -55,10 +55,12 @@ public class ChampionPool{
 				if (rarity<=epic){
 					ret = epics[(int)(Math.random()*4)];
 				}else{
-					ret = rares[(int)(Math.random()*7)];
+					ret = rares[(int)(Math.random()*8)];
 				}
 			}else{
-				ret = commons[(int)(Math.random()*8)];
+				ret = commons[(int)(Math.random()*7)];
+				System.out.println("ret " + ret);
+
 			}
 			
 			if (champs[ret]>0){
@@ -70,3 +72,4 @@ public class ChampionPool{
 		return ret;
 	}
 	
+}

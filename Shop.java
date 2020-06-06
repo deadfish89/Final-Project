@@ -6,76 +6,67 @@ class Shop extends JPanel implements ActionListener{
 	
 	private Player player;
 	private Board board;
-	private JButton item1,item2, item3, item4, item5;
-	//private Pool champPool;
+	private LeftPanel2 leftPanel2;
+	private int[] inShop;
+	private final int[] price;
+	private JButton[] shopItems;
+	private ChampionPool champPool;
+	//has the images of the champions in shop
+	private ImageIcon[] items = new ImageIcon[19];
 	
-	public Shop(Player player, Board board){
-		//champPool = new Pool(player);
+	public Shop(Player player, Board board, LeftPanel2 leftPanel2){
+		price = new int[] {5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1,};
+		champPool = new ChampionPool(player);
+		inShop = new int[5];
+		shopItems = new JButton[5];
 		
 		this.player = player;
 		this.board = board;
+		this.leftPanel2 = leftPanel2;
 		this.setPreferredSize(new Dimension(700,130));
 		this.setLayout(new GridLayout(1,5));
 		this.setBackground(Color.black);
 		
-		//has the images of the champions in shop
-		ImageIcon[] items = new ImageIcon[19];	
+		items[0] = new ImageIcon("annie.png");
+		items[1] = new ImageIcon("wukong.png");
+		items[2] = new ImageIcon("cho'gath.png");
+		items[3] = new ImageIcon("vel'koz.png");
 		
-		items[0] = scaleImage(new ImageIcon("annie.png"));
-		items[1] = scaleImage(new ImageIcon("wukong.png"));
-		items[2] = scaleImage(new ImageIcon("cho'gath.png"));
-		items[3] = scaleImage(new ImageIcon("qiyana.png"));
-		items[4] = scaleImage(new ImageIcon("brand.png"));
-		items[5] = scaleImage(new ImageIcon("lux.png"));
-		items[6] = scaleImage(new ImageIcon("nautilus.png"));
-		items[7] = scaleImage(new ImageIcon("riven.png"));
-		items[8] = scaleImage(new ImageIcon("syndra.png"));
-		items[9] = scaleImage(new ImageIcon("varus.png"));
-		items[10] = scaleImage(new ImageIcon("veigar.png"));
-		items[11] = scaleImage(new ImageIcon("vi.png"));
-		items[12] = scaleImage(new ImageIcon("braum.png"));
-		items[13] = scaleImage(new ImageIcon("darius.png"));
-		items[14] = scaleImage(new ImageIcon("kassadin.png"));
-		items[15] = scaleImage(new ImageIcon("kha'zix.png"));
-		items[16] = scaleImage(new ImageIcon("sivir.png"));
-		items[17] = scaleImage(new ImageIcon("jinx.png"));
-		items[18] = scaleImage(new ImageIcon("yasuo.png"));
+		items[4] = new ImageIcon("brand.png");
+		items[5] = new ImageIcon("lux.png");
+		items[6] = new ImageIcon("nautilus.png");
+		items[7] = new ImageIcon("syndra.png");
+		items[8] = new ImageIcon("varus.png");
+		items[9] = new ImageIcon("veigar.png");
+		items[10] = new ImageIcon("vi.png");
+		items[11] = new ImageIcon("qiyana.png");
 		
-		//these are filler images
-		/*
-		item1 = new JButton(items[champPool.getNext()]);
-		item2 = new JButton(items[champPool.getNext()]);
-		item3 = new JButton(items[champPool.getNext()]);
-		item4 = new JButton(items[champPool.getNext()]);
-		item5 = new JButton(items[champPool.getNext()]);
-		*/
+		items[12] = new ImageIcon("riven.png");
+		items[13] = new ImageIcon("braum.png");
+		items[14] = new ImageIcon("darius.png");
+		items[15] = new ImageIcon("kassadin.png");
+		items[16] = new ImageIcon("sivir.png");
+		items[17] = new ImageIcon("jinx.png");
+		items[18] = new ImageIcon("yasuo.png");
 		
-		//testing
-		item1 = new JButton(items[1]);
-		item2 = new JButton(items[2]);
-		item3 = new JButton(items[3]);
-		item4 = new JButton(items[4]);
-		item5 = new JButton(items[5]);
-		
-		this.add(item1);
-		this.add(item2);
-		this.add(item3);
-		this.add(item4);
-		this.add(item5);
-		
-		item1.addActionListener(this);
-		item2.addActionListener(this);
-		item3.addActionListener(this);
-		item4.addActionListener(this);
-		item5.addActionListener(this);
-		
+		loadImages();
 	}
 	
-	private ImageIcon scaleImage(ImageIcon imageIcon){
-		Image image = imageIcon.getImage(); 
-		Image newimg = image.getScaledInstance(100, 100,  java.awt.Image.SCALE_SMOOTH);
-		imageIcon = new ImageIcon(newimg);  
-		return imageIcon;
+	public void reloadImages(){
+		this.removeAll();
+		this.revalidate();
+		this.repaint();
+		loadImages();
+	}
+	
+	public void loadImages(){	
+		for (int i=0; i<5; i++){
+			System.out.println("add");
+			inShop[i] = champPool.getNext();
+			shopItems[i] = new JButton(items[inShop[i]]);
+			this.add(shopItems[i]);
+			shopItems[i].addActionListener(this);
+		}
 	}
 	
 	public void paintComponent(Graphics g){
@@ -84,16 +75,12 @@ class Shop extends JPanel implements ActionListener{
 	}
 	
 	public void actionPerformed(ActionEvent e){
-		if(e.getSource()==item1){
-			board.summonChamp(1, 1);
-		}else if (e.getSource()==item2){
-			board.summonChamp(2, 1);
-		}else if (e.getSource()==item3){
-			board.summonChamp(3, 1);
-		}else if (e.getSource()==item4){
-			board.summonChamp(4, 1);
-		}else if (e.getSource()==item5){
-			board.summonChamp(5, 1);
+		for (int i=0; i<5; i++){
+			if (e.getSource()==shopItems[i] && player.getGold()>=price[i]){
+				player.spendGold(price[i]);
+				leftPanel2.redisplay();
+				board.summonChamp(inShop[i], 1);
+			}
 		}
 	}
 	

@@ -13,8 +13,6 @@ public class Bench extends JPanel implements MouseListener{
 		this.player = player;
 		this.board = board;
 		bg = new ImageIcon("Bench.jpg");
-		reroll = new JButton("Reroll");
-		reroll.setSize(300, 200);
 	
 		this.setPreferredSize(new Dimension(1000,100));
 	}

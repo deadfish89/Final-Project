@@ -1,3 +1,7 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
 class Tile{
 	
 	private int x, y;
@@ -25,8 +29,16 @@ class Tile{
 		isEmpty = false;
 	}
 	
+	public void removeChamp(){
+		isEmpty = true;
+	}
+	
 	//if mouse is hovering
 	public boolean contains(int mX, int mY) {
-    	return (mX>x && mX<x+100 && mY>y && mY<y+100);
+    	return (mX>=x && mX<x+100 && mY>=y && mY<y+100);
+    }
+	
+	public void myDraw(Graphics g) {
+    	g.drawRect(x, y, 100, 100);
     }
 }

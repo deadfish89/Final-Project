@@ -24,7 +24,7 @@ public class Champion{
 				image = new ImageIcon("cho'gath.png");
 				break;
 			case 3:
-				image = new ImageIcon("qiyana.png");
+				image = new ImageIcon("vel'koz.png");
 				break;
 			case 4: 
 				image = new ImageIcon("brand.png");
@@ -36,30 +36,31 @@ public class Champion{
 				image = new ImageIcon("nautilus.png");
 				break;
 			case 7:
-				image = new ImageIcon("riven.png");
-				break;
-			case 8:
 				image = new ImageIcon("syndra.png");
 				break;
-			case 9:
+			case 8:
 				image = new ImageIcon("varus.png");
 				break;
-			case 10:
+			case 9:
 				image = new ImageIcon("veigar.png");
-			case 11: 
+				break;
+			case 10: 
 				image = new ImageIcon("vi.png");
 				break;
-			case 12:
-				image = new ImageIcon("braum.png");
+			case 11:
+				image = new ImageIcon("qiyana.png");
+				break;
+			case 12: 
+				image = new ImageIcon("riven.png");
 				break;
 			case 13:
-				image = new ImageIcon("darius.png");
+				image = new ImageIcon("braum.png");
 				break;
 			case 14:
-				image = new ImageIcon("kassadin.png");
+				image = new ImageIcon("darius.png");
 				break;
 			case 15:
-				image = new ImageIcon("kha.zix.png");
+				image = new ImageIcon("kassadin.png");
 				break;
 			case 16:
 				image = new ImageIcon("sivir.png");
@@ -97,7 +98,7 @@ public class Champion{
 	
 	//if mouse is hovering
 	public boolean contains(int mX, int mY) {
-    	return (mX>x && mX<x+100 && mY>y && mY<y+100);
+    	return (mX>=x && mX<x+100 && mY>=y && mY<y+100);
     }
 	
 	//custom draw at x and y

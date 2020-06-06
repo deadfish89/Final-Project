@@ -7,7 +7,7 @@ public class Player{
 	boolean inferno, glacial, tank, blademaster, mage, void1, brawler; //need to add a get traits method or smth
 
 	public Player(){
-		gold = 0;
+		gold = 50;
 		xp = 0;
 		level = 1;
 		health = 100;

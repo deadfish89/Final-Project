@@ -28,7 +28,6 @@ public class TFT{
 		Board board = new Board(player);
 		frame.getContentPane().add(board, BorderLayout.CENTER);
 		frame.getContentPane().add(new SouthPanel(player, board), BorderLayout.SOUTH);
-		frame.getContentPane().add(new Bench(player, board), BorderLayout.NORTH);
 		frame.pack();
 	}
 	public static void LoadInstructions(){

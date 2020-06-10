@@ -1,3 +1,4 @@
 # Final-Project
-fuckingg java.lang.NoClassDefFoundError: 
-idk how to fix that something about classpath
+Graphics 2 
+-texture brush, gradiant brush, and other stuff to make it look good later
+

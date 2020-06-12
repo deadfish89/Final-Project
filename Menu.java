@@ -12,7 +12,15 @@ class Menu extends JPanel implements ActionListener {
         instruction = new JButton("Instructions");
         title = new JLabel(logo);
         play.addActionListener(this);
+	play.setBackground(new Color(246,178,61));
+	play.setOpaque(true);
+	play.setBorder(BorderFactory.createBevelBorder(0));
+	play.setFont(new Font("SansSerif",Font.PLAIN,30));
         instruction.addActionListener(this);
+	instruction.setBackground(new Color(246,178,61));
+	instruction.setOpaque(true);
+	instruction.setBorder(BorderFactory.createBevelBorder(0));
+	instruction.setFont(new Font("SansSerif",Font.PLAIN,30));
         this.setBackground(Color.WHITE);
         this.setLayout(null);
         title.setBounds(0,0,1300,350);
@@ -24,7 +32,7 @@ class Menu extends JPanel implements ActionListener {
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-	g.setFont(new Font("Open Sans",Font.PLAIN,20));
+	g.setFont(new Font("SansSerif",Font.PLAIN,20));
 	g.drawString("By:Bryan Jiang and Eric Chen",1000,650);
     }
     public void actionPerformed(ActionEvent event) {

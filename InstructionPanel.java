@@ -16,14 +16,18 @@ class InstructionPanel extends JPanel implements ActionListener{
         	this.setLayout(null);
 		picture1.setBounds(540,0,700,300);
 		returnMenu.setBounds(1000,500,200,100);
+		returnMenu.setBackground(new Color(246,178,61));
+		returnMenu.setOpaque(true);
+		returnMenu.setBorder(BorderFactory.createBevelBorder(0));
+		returnMenu.setFont(new Font("SansSerif",Font.PLAIN,20));
 		this.add(picture1);
 		this.add(returnMenu);
 	}
 	public void paintComponent(Graphics g){
         	super.paintComponent(g);
-        	g.setFont(new Font("Open Sans",Font.BOLD,50));
+        	g.setFont(new Font("SansSerif",Font.BOLD,50));
         	g.drawString("Instructions",450,50);
-		g.setFont(new Font("Open Sans",Font.PLAIN,40));
+		g.setFont(new Font("SansSerif",Font.PLAIN,40));
 		g.drawString("Buy champions from the shop",10,200);
 		g.drawString("Each champion has traits. Having champions",500,300); 
 		g.drawString("with the same traits gives bonuses.",500,350);

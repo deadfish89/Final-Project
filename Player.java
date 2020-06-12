@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class Player{
 	
-	private int gold, xp, level, health, levelUp;
+	private int gold, xp, level, health, levelUpCost;
 	private ArrayList<Integer> champs = new ArrayList<>();
 
 	public Player(){
@@ -10,7 +10,7 @@ public class Player{
 		xp = 0;
 		level = 1;
 		health = 100;
-		levelUp = 4;
+		levelUpCost = 4;
 	}
 
 	public void gainGold(int gold){
@@ -23,10 +23,12 @@ public class Player{
 	
 	public void gainXP(int xp){
 		this.xp+=xp;
-		if (xp>=levelUp){
-			xp-=levelUp;
+		if (this.xp>=levelUpCost){
+			this.xp-=levelUpCost;
 			level++;
+			levelUpCost+=4;
 		}
+		
 	}
 	
 	public void takeDamage(int damage){

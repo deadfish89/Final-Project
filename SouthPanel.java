@@ -123,7 +123,7 @@ class LeftPanel2 extends JPanel{
 	}
 	
 	public void display(){
-		xpLabel = new JLabel("XP: " + player.getXP(), JLabel.CENTER);
+		xpLabel = new JLabel("XP: " + player.getXP() +"/"+player.getLevel()*4, JLabel.CENTER);
 		goldLabel = new JLabel("Gold: " + player.getGold(), JLabel.CENTER);
 		lvlLabel = new JLabel("Level: " + player.getLevel(), JLabel.CENTER);
 		
@@ -261,4 +261,3 @@ class Shop extends JPanel implements ActionListener{
 	}
 	
 }
-

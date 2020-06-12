@@ -44,7 +44,7 @@ class HUD extends JPanel implements ActionListener{
 		this.setPreferredSize(new Dimension(1000,130));
 		this.setLayout(new BorderLayout());
 		this.add(shop, BorderLayout.EAST);
-		this.add(new LeftPanel(player, board, leftPanel2, shop), BorderLayout.WEST);
+		this.add(new LeftPanel(player, leftPanel2, shop), BorderLayout.WEST);
 		this.add(leftPanel2, BorderLayout.CENTER);
 	}
 	
@@ -66,7 +66,7 @@ class LeftPanel extends JPanel implements ActionListener{
 	private JButton refresh, level;
 	private JTextField xp, gold;
 	
-	public LeftPanel(Player player, Board board, LeftPanel2 leftPanel2, Shop shop){
+	public LeftPanel(Player player, LeftPanel2 leftPanel2, Shop shop){
 		this.player = player;
 		this.shop = shop;
 		this.leftPanel2 = leftPanel2;
@@ -100,7 +100,6 @@ class LeftPanel extends JPanel implements ActionListener{
 			if (player.getGold()>=2){
 				player.spendGold(2);
 				shop.reloadImages();
-				System.out.println("yes");
 				leftPanel2.redisplay();
 			}
 		}else{
@@ -171,6 +170,7 @@ class LeftPanel2 extends JPanel{
 
 class Shop extends JPanel implements ActionListener{
 	
+	private Timer timer;
 	private Player player;
 	private Board board;
 	private LeftPanel2 leftPanel2;
@@ -192,7 +192,7 @@ class Shop extends JPanel implements ActionListener{
 		this.leftPanel2 = leftPanel2;
 		this.setPreferredSize(new Dimension(700,130));
 		this.setLayout(new GridLayout(1,5));
-		this.setBackground(Color.black);
+		this.setBackground(new Color(119,136,153));
 		
 		items[0] = new ImageIcon("annie.png");
 		items[1] = new ImageIcon("wukong.png");
@@ -217,6 +217,9 @@ class Shop extends JPanel implements ActionListener{
 		items[18] = new ImageIcon("yasuo.png");
 		
 		loadImages();
+		
+		timer = new Timer(120, this);
+		timer.start();
 	}
 	
 	public void reloadImages(){
@@ -237,17 +240,25 @@ class Shop extends JPanel implements ActionListener{
 	
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
-		
 	}
 	
 	public void actionPerformed(ActionEvent e){
+		if (e.getSource()==timer){
+			if (board.needReset()){
+				this.reloadImages();
+				leftPanel2.redisplay();
+				board.beenReset();
+			}
+		}
 		for (int i=0; i<5; i++){
 			if (e.getSource()==shopItems[i] && player.getGold()>=price[i]){
 				player.spendGold(price[i]);
 				leftPanel2.redisplay();
 				board.summonChamp(inShop[i], 1);
+				shopItems[i].setVisible(false);
 			}
 		}
 	}
 	
 }
+

@@ -90,7 +90,7 @@ class LeftPanel extends JPanel implements ActionListener{
 	}
 	
 	public void actionPerformed(ActionEvent e){
-		if(e.getSource()==level){
+		if(e.getSource()==level&&player.getLevel()<10){
 			if (player.getGold()>=4) {
 				player.spendGold(4);
 				player.gainXP(4);
@@ -123,7 +123,8 @@ class LeftPanel2 extends JPanel{
 	}
 	
 	public void display(){
-		xpLabel = new JLabel("XP: " + player.getXP() +"/"+player.getLevel()*4, JLabel.CENTER);
+		if(player.getLevel()==10) xpLabel = new JLabel("XP: MAX", JLabel.CENTER);
+		else{ xpLabel = new JLabel("XP: " + player.getXP() +"/"+player.getLevel()*4, JLabel.CENTER);}
 		goldLabel = new JLabel("Gold: " + player.getGold(), JLabel.CENTER);
 		lvlLabel = new JLabel("Level: " + player.getLevel(), JLabel.CENTER);
 		
@@ -251,7 +252,7 @@ class Shop extends JPanel implements ActionListener{
 			}
 		}
 		for (int i=0; i<5; i++){
-			if (e.getSource()==shopItems[i] && player.getGold()>=price[i]){
+			if (e.getSource()==shopItems[i] && player.getGold()>=price[i] && !board.benchFull()){
 				player.spendGold(price[i]);
 				leftPanel2.redisplay();
 				board.summonChamp(inShop[i], 1);

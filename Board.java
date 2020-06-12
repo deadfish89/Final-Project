@@ -100,6 +100,12 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		needReset = false;
 	}
 	
+	public boolean benchFull(){
+		for(int i=0;i < 10;i++){
+			if(bench[i]==null)return false;
+		}
+		return true;
+	}
 	public void summonChamp(int champ, int level){
 		int x = 0, y = 0, index = 0;
 		for (int i=0; i<10; i++){

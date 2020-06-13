@@ -1,41 +1,40 @@
 import java.awt.*; 
 import javax.swing.*;
 import java.awt.event.*; 
+import java.util.Arrays;
 
 public class TFT{
-	public static JFrame frame = new JFrame("Teamfight Tactics");
+
+	public static JFrame frame;
+	public static Container container;
+	
 	public static void main(String[] args){
-		JFrame frame = new JFrame("Teamfight Tactics");
+		frame = new JFrame("Teamfight Tactics");
+		container = frame.getContentPane();
+		frame.setSize(1300,700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 		LoadMenu();
 	}
 	public static void LoadMenu(){
-		frame.getContentPane().removeAll();
-		frame.revalidate();
-		frame.repaint();
+		container.removeAll();
 		Menu menu = new Menu();
-		frame.setVisible(true);
-		frame.setSize(1300,700);
-	    	frame.getContentPane().add(menu,BorderLayout.CENTER);
+	    	container.add(menu,BorderLayout.CENTER);
 		frame.revalidate();
 		frame.repaint();
 	}
 	public static void LoadGame(){
-		frame.getContentPane().removeAll();
-		frame.revalidate();
-		frame.repaint();
+		container.removeAll();
 		Player player = new Player();
 		Board board = new Board(player);
-		frame.getContentPane().add(board, BorderLayout.CENTER);
-		frame.getContentPane().add(new SouthPanel(player, board), BorderLayout.SOUTH);
+		container.add(board, BorderLayout.CENTER);
+		container.add(new SouthPanel(player, board), BorderLayout.SOUTH);
 		frame.pack();
 	}
 	public static void LoadInstructions(){
-		frame.getContentPane().removeAll();
-		frame.revalidate();
-		frame.repaint();
+		container.removeAll();
 		InstructionPanel panel = new InstructionPanel();
-		frame.getContentPane().add(panel, BorderLayout.CENTER);
+		container.add(panel, BorderLayout.CENTER);
 		frame.revalidate();
 		frame.repaint();
 	}

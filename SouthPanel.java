@@ -12,7 +12,7 @@ public class SouthPanel extends JPanel implements ActionListener{
 		this.board = board;
 		
 		this.setLayout(new BorderLayout());
-		this.setPreferredSize(new Dimension(1000,130));
+		this.setPreferredSize(new Dimension(1000,105));
 		
 		this.add(new HUD(player, board), BorderLayout.SOUTH);
 	}
@@ -41,7 +41,7 @@ class HUD extends JPanel implements ActionListener{
 		leftPanel2 = new LeftPanel2(player);
 		shop = new Shop(player, board, leftPanel2);
 		this.setBackground(Color.black);
-		this.setPreferredSize(new Dimension(1000,130));
+		this.setPreferredSize(new Dimension(1000,105));
 		this.setLayout(new BorderLayout());
 		this.add(shop, BorderLayout.EAST);
 		this.add(new LeftPanel(player, leftPanel2, shop), BorderLayout.WEST);
@@ -70,7 +70,7 @@ class LeftPanel extends JPanel implements ActionListener{
 		this.player = player;
 		this.shop = shop;
 		this.leftPanel2 = leftPanel2;
-		this.setPreferredSize(new Dimension(185,130));
+		this.setPreferredSize(new Dimension(185,105));
 		this.setLayout(new GridLayout(2,1));
 		this.setBackground(Color.black);
 		
@@ -90,7 +90,7 @@ class LeftPanel extends JPanel implements ActionListener{
 	}
 	
 	public void actionPerformed(ActionEvent e){
-		if(e.getSource()==level&&player.getLevel()<10){
+		if(e.getSource()==level){
 			if (player.getGold()>=4) {
 				player.spendGold(4);
 				player.gainXP(4);
@@ -116,15 +116,14 @@ class LeftPanel2 extends JPanel{
 	
 	public LeftPanel2(Player player){
 		this.player = player;
-		this.setPreferredSize(new Dimension(115,130));
+		this.setPreferredSize(new Dimension(115,105));
 		this.setLayout(new GridLayout(3,1));
 		this.setBackground(Color.white);
 		display();
 	}
 	
 	public void display(){
-		if(player.getLevel()==10) xpLabel = new JLabel("XP: MAX", JLabel.CENTER);
-		else{ xpLabel = new JLabel("XP: " + player.getXP() +"/"+player.getLevel()*4, JLabel.CENTER);}
+		xpLabel = new JLabel("XP: " + player.getXP(), JLabel.CENTER);
 		goldLabel = new JLabel("Gold: " + player.getGold(), JLabel.CENTER);
 		lvlLabel = new JLabel("Level: " + player.getLevel(), JLabel.CENTER);
 		
@@ -191,7 +190,7 @@ class Shop extends JPanel implements ActionListener{
 		this.player = player;
 		this.board = board;
 		this.leftPanel2 = leftPanel2;
-		this.setPreferredSize(new Dimension(700,130));
+		this.setPreferredSize(new Dimension(700,105));
 		this.setLayout(new GridLayout(1,5));
 		this.setBackground(new Color(119,136,153));
 		
@@ -252,11 +251,12 @@ class Shop extends JPanel implements ActionListener{
 			}
 		}
 		for (int i=0; i<5; i++){
-			if (e.getSource()==shopItems[i] && player.getGold()>=price[i] && !board.benchFull()){
-				player.spendGold(price[i]);
-				leftPanel2.redisplay();
-				board.summonChamp(inShop[i], 1);
-				shopItems[i].setVisible(false);
+			if (e.getSource()==shopItems[i] && player.getGold()>=price[i]){
+				if (board.summonChamp(inShop[i], 1)){
+					player.spendGold(price[i]);
+					leftPanel2.redisplay();
+					shopItems[i].setVisible(false);
+				}
 			}
 		}
 	}

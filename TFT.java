@@ -11,7 +11,6 @@ public class TFT{
 	public static void main(String[] args){
 		frame = new JFrame("Teamfight Tactics");
 		container = frame.getContentPane();
-		frame.setSize(1300,700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		LoadMenu();
@@ -19,9 +18,10 @@ public class TFT{
 	public static void LoadMenu(){
 		container.removeAll();
 		Menu menu = new Menu();
-	    	container.add(menu,BorderLayout.CENTER);
+	    container.add(menu,BorderLayout.CENTER);
 		frame.revalidate();
 		frame.repaint();
+		frame.pack();
 	}
 	public static void LoadGame(){
 		container.removeAll();
@@ -29,6 +29,7 @@ public class TFT{
 		Board board = new Board(player);
 		container.add(board, BorderLayout.CENTER);
 		container.add(new SouthPanel(player, board), BorderLayout.SOUTH);
+		container.add(new EastPanel(board), BorderLayout.EAST);
 		frame.pack();
 	}
 	public static void LoadInstructions(){

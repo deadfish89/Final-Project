@@ -1,6 +1,7 @@
 import java.awt.*; 
 import javax.swing.*;
 import java.awt.event.*; 
+import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -13,7 +14,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private boolean win = false, lose = false, inGame = false, paused = false, needReset = false;
 	private ImageIcon victory = new ImageIcon("victory.png"), defeat = new ImageIcon("defeat.png");
 	private final int time = 16;
-	private ImageIcon bg, b;
+	private ImageIcon bg, b, bg2;
 	
 	private int[] origins = new int[7];
 	private int[] traits = new int[6]; 
@@ -23,10 +24,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private ArrayList<Champion> enemyChamps = new ArrayList<>();
 	
 	private Player player; 
-	private Champion[][] board = new Champion[10][2];
-	private Champion[][] enemyBoard = new Champion[10][2];
-	private Tile[][] field = new Tile[10][2];
-	private Tile[][] enemyField = new Tile[10][2];
+	private Champion[][] board = new Champion[10][3];
+	private Champion[][] enemyBoard = new Champion[10][3];
+	private Tile[][] field = new Tile[10][3];
+	private Tile[][] enemyField = new Tile[10][3];
 	private Tile[] benchField = new Tile[10];
 	private Champion[] bench = new Champion[10];
 	private Champion pickedChamp = null;
@@ -40,14 +41,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public Board(Player player){
 	
 		//panel
-		this.setLayout(new BorderLayout());
-		this.setPreferredSize(new Dimension(1000,600)); 
-		w = 1000; h = 600; //this.getWidth() gives 0 for some reason
+		this.setPreferredSize(new Dimension(850,595)); 
+		w = 850; h = 595; //this.getWidth() gives 0 for some reason
 		
 		this.player = player;
 		
 		/* temp add enemy champions */
-		enemyChamps.add(new Lux(0,100,1));
+		enemyChamps.add(new Lux(0,85,1));
 		//enemyChamps.add(new Wukong(100,100,1));
 		//enemyChamps.add(new Jinx(100,300,1));
 		for (int i=0; i<enemyChamps.size(); i++){
@@ -56,19 +56,20 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		//initialize field
 		for (int i=0; i<10; i++){
-			for (int j=0; j<2; j++){
-				field[i][j] = new Tile(i*100, h/2 +j*100 );
-				enemyField[i][j] = new Tile(i*100, j*100);
+			for (int j=0; j<3; j++){
+				field[i][j] = new Tile(i*85-1, (h-85)/2 +j*85);
+				enemyField[i][j] = new Tile(i*85, j*85);
 			}
 		}	
 		
 		//initialize benchField
 		for (int i=0; i<10; i++){
-			benchField[i] = new Tile(i*100, h-100);
+			benchField[i] = new Tile(i*85, h-85);
 		}
 		
 		//background
 		bg = new ImageIcon("TFT_EarthBoard.jpg");
+		bg2 = new ImageIcon("background.png");
 		b = new ImageIcon("bench2.png");
 		
 		//event listeners
@@ -82,7 +83,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		preRound.start();
 	}
 	
-	public void newRound(){
+	private void newRound(){
 		needReset = true;
 		for (int i=0; i<nBoardChamps; i++){
 			boardChamps.get(i).reset();
@@ -100,89 +101,87 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		needReset = false;
 	}
 	
-	public boolean benchFull(){
-		for(int i=0;i < 10;i++){
-			if(bench[i]==null)return false;
-		}
-		return true;
-	}
-	public void summonChamp(int champ, int level){
+	public boolean summonChamp(int champ, int level){
 		int x = 0, y = 0, index = 0;
-		for (int i=0; i<10; i++){
-				if (bench[i]==null){
-					x = i*100;
-					y = h-100;
-					index = i;
+		if (benchChamps.size()<10){
+			for (int i=0; i<10; i++){
+					if (bench[i]==null){
+						x = i*85;
+						y = h-85;
+						index = i;
+						break;
+					}
+			}
+		
+			Champion temp = null;
+			switch (champ){
+				case 0:
+					temp = new Annie(x, y, level);
 					break;
-				}
+				case 1:
+					temp = new Wukong(x, y, level);
+					break;
+				case 2:
+					temp = new Chogath(x, y, level);
+					break;
+				case 3:
+					temp = new Velkoz(x, y, level);
+					break;
+				case 4:
+					temp = new Brand(x, y, level);
+					break;
+				case 5:
+					temp = new Lux(x, y, level);
+					break;
+				case 6:	
+					temp = new Nautilus (x, y, level);
+					break;
+				case 7:
+					temp = new Syndra(x, y, level);
+					break;
+				case 8:
+					temp = new Varus(x, y, level);
+					break;
+				case 9:
+					temp = new Veigar(x, y, level);
+					break;
+				case 10:
+					temp = new Vi(x, y, level);
+					break;
+				case 11:
+					temp = new Qiyana(x, y, level);
+					break;
+				case 12:
+					temp = new Riven(x, y, level);
+					break;
+				case 13:
+					temp = new Braum(x, y, level);
+					break;
+				case 14:
+					temp = new Darius(x, y, level);
+					break;
+				case 15:
+					temp = new Kassadin(x, y, level);
+					break;
+				case 16:	
+					temp = new Sivir(x, y, level);
+					break;
+				case 17:
+					temp = new Jinx(x, y, level);
+					break;
+				case 18:
+					temp = new Yasuo(x, y, level);
+					break;
+			}
+			bench[index] = temp;
+			benchField[index].addChamp();
+			benchChamps.add(bench[index]);
+			champs.add(bench[index]);
+			
+			repaint();
+			return true;
 		}
-		
-		Champion temp = null;
-		switch (champ){
-			case 0:
-				temp = new Annie(x, y, level);
-				break;
-			case 1:
-				temp = new Wukong(x, y, level);
-				break;
-			case 2:
-				temp = new Chogath(x, y, level);
-				break;
-			case 3:
-				temp = new Velkoz(x, y, level);
-				break;
-			case 4:
-				temp = new Brand(x, y, level);
-				break;
-			case 5:
-				temp = new Lux(x, y, level);
-				break;
-			case 6:	
-				temp = new Nautilus (x, y, level);
-				break;
-			case 7:
-				temp = new Syndra(x, y, level);
-				break;
-			case 8:
-				temp = new Varus(x, y, level);
-				break;
-			case 9:
-				temp = new Veigar(x, y, level);
-				break;
-			case 10:
-				temp = new Vi(x, y, level);
-				break;
-			case 11:
-				temp = new Qiyana(x, y, level);
-				break;
-			case 12:
-				temp = new Riven(x, y, level);
-				break;
-			case 13:
-				temp = new Braum(x, y, level);
-				break;
-			case 14:
-				temp = new Darius(x, y, level);
-				break;
-			case 15:
-				temp = new Kassadin(x, y, level);
-				break;
-			case 16:	
-				temp = new Sivir(x, y, level);
-				break;
-			case 17:
-				temp = new Jinx(x, y, level);
-				break;
-			case 18:
-				temp = new Yasuo(x, y, level);
-				break;
-		}
-		bench[index] = temp;
-		benchField[index].addChamp();
-		benchChamps.add(bench[index]);
-		champs.add(bench[index]);
-		
-		repaint();
+		return false;
 	}
 	
 	public void addToBoard(Champion champ){
@@ -227,7 +226,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					else if(traits[trait]>=3) cur.setAP((int)(cur.getAP()*1.3));
 					break;
 				case 1:
-					if (traits[trait]==4) cur.setAS(cur.getAS()*1.75);
+					if (traits[trait]==4) cur.setAS(cur.getAS()*1.85);
 					else if(traits[trait]>=2) cur.setAS(cur.getAS()*1.25);
 					break;
 				case 2:
@@ -275,12 +274,16 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			
 			}
 		}
+		
+	public void getTraits(){
+		
+	}
 	
-	public void rangedAttack(Champion attacker, Champion target){
+	private void rangedAttack(Champion attacker, Champion target){
 		autos.add(new Auto(attacker, target));
 	}
 
-	public Champion findTarget(Champion attacker){
+	private Champion findTarget(Champion attacker){
 		double dis = 10000;
 		Champion target = null;
 		for (int i=0; i<enemyChamps.size(); i++){
@@ -291,7 +294,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		return target;
 	}
 	
-	public Champion enemyFindTarget(Champion attacker){
+	private Champion enemyFindTarget(Champion attacker){
 		double dis = 10000;
 		Champion target = null;
 		for (int i=0; i<nBoardChamps; i++){
@@ -309,20 +312,19 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		Font font;
 		
 		//background
-		g.drawImage(bg.getImage(), 0, 98, w, h-196, null); //98 and 196 to fill in the couple pixels of white space 
+		g.drawImage(bg.getImage(), 0, -1, w, h-83, null);
 		
 		//benches
 		for (int i=0; i<10; i++){
-			g.drawImage(b.getImage(), i*100, h-100, null);
-			g.drawImage(b.getImage(), i*100, 0, null);
+			g.drawImage(b.getImage(), i*85, h-85, null);
 			if (pickedChamp!=null){
-				g.drawLine(i*100, h, i*100, h-100);
+				g.drawLine(i*85, h, i*85, h-85);
 			}
 		}
 		
 		//champions on the board
 		for (int i=0; i<10; i++){
-			for (int j=0; j<2; j++){
+			for (int j=0; j<3; j++){
 				if (board[i][j]!=null && board[i][j].isAlive()){
 					board[i][j].myDraw(g);
 				}else if (pickedChamp!=null){
@@ -355,13 +357,20 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		//timer 
 		if (!inGame || paused){
 			g2.setStroke(new BasicStroke(3));
+			//make drawing transparent
+			float alpha = 0.75f;
+			int type = AlphaComposite.SRC_OVER; 
+			AlphaComposite composite = AlphaComposite.getInstance(type, alpha);
+			Composite originalComposite = g2.getComposite();
 			
-			g.setColor(new Color(205,133,63));
+			g2.setComposite(composite);
+			g2.setColor(new Color(205,133,63));
 			g2.fillRoundRect(w/2-200, 50, 400, 80, 20, 20);
 			
+			g2.setComposite(originalComposite);
 			g2.setColor(new Color(218,165,32));
 			g2.drawRoundRect(w/2-200, 50, 400, 80, 20, 20);
-
+			
 			g.setColor(new Color(205,133,63));
 			g.fillOval(w/2-50, 50, 100, 100);
 			
@@ -379,10 +388,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		
 		//win or lose
 		if (win){
-			g.drawImage(victory.getImage(), 100, 200, null);
+			g.drawImage(victory.getImage(), 125, 185, null);
 		}
 		else if (lose){
-			g.drawImage(defeat.getImage(), 75, 175, null);
+			g.drawImage(defeat.getImage(), 125, 185, null);
 		}
 	}
 	
@@ -446,6 +455,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						}
 					}
 					else{
+						timer.stop();
 						lose = true;
 						paused = true;
 						nSeconds = 5;
@@ -511,7 +521,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					originalX = champs.get(i).getX(); 
 					originalY = champs.get(i).getY();
 					for (int j=0; j<10; j++){
-						for (int k=0; k<2; k++){
+						for (int k=0; k<3; k++){
 							if (field[j][k].contains(originalX, originalY)){
 								field[j][k].removeChamp();
 								board[j][k] = null;
@@ -552,7 +562,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		//champion released on board
 		for (int i=0; i<10; i++){
-			for (int j=0; j<2; j++){
+			for (int j=0; j<3; j++){
 				if (field[i][j].contains(mX, mY) && pickedChamp!=null){
 					onTile = true;
 					if (field[i][j].isEmpty()){
@@ -586,7 +596,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								benchField[k].addChamp();
 								bench[k] = pickedChamp;
 							}
-							for (int l=0; l<2; l++){
+							for (int l=0; l<3; l++){
 								if (field[k][l].contains(originalX, originalY)){
 									field[k][l].addChamp();
 									board[k][l] = pickedChamp;
@@ -610,7 +620,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						
 						//if champion was from board
 						for (int j=0; j<10; j++){
-							for (int k=0; k<2; k++){
+							for (int k=0; k<3; k++){
 								if (field[j][k].contains(originalX, originalY)){
 									this.removeFromBoard(pickedChamp);
 									benchChamps.add(pickedChamp);
@@ -627,7 +637,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								benchField[j].addChamp();
 								bench[j] = pickedChamp;
 							}
-							for (int k=0; k<2; k++){
+							for (int k=0; k<3; k++){
 								if (field[j][k].contains(originalX, originalY)){
 									field[j][k].addChamp();
 									board[j][k] = pickedChamp;
@@ -646,7 +656,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						benchField[i].addChamp();
 						bench[i] = pickedChamp;
 					}
-					for (int j=0; j<2; j++){
+					for (int j=0; j<3; j++){
 						if (field[i][j].contains(originalX, originalY)){
 							field[i][j].addChamp();
 							board[i][j] = pickedChamp;
@@ -704,11 +714,11 @@ class Tile{
 	
 	//if mouse is hovering
 	public boolean contains(int mX, int mY) {
-    	return (mX>=x && mX<x+100 && mY>=y && mY<y+100);
+    	return (mX>=x && mX<x+85 && mY>=y && mY<y+85);
     }
 	
 	public void myDraw(Graphics g) {
-    	g.drawRect(x, y, 100, 100);
+    	g.drawRect(x, y, 85, 85);
     }
 }
 
@@ -758,29 +768,28 @@ class Auto extends Rectangle{
 
 class Champion implements ActionListener{
 	
-	protected boolean alive = true;
-	
 	protected int x, y, originalX, originalY;
 	protected ImageIcon image;
 	protected int hp=0, lvl=0, ad=0, ap=0, armor = 0, mr = 0, curHP = 0, mana = 0, curMana = 0, range = 0;
 	protected double as = 0, originalAS;
 	protected int originalHP, originalAD, originalMR, originalAP, originalArmor;
-	protected int trait = 0, origin = 0;
+	protected int trait = 0, origin = 0, rarity = -1;
 	protected boolean isRanged;
 	protected int vel = 5;
-	protected boolean blademaster, void1, glacial, hextech, demon;
-	protected int isHit = 0, isStunned = 0;
-	private Timer hit, stunned;
-	protected ImageIcon slash = new ImageIcon("slash.jpg"), stun;
-	
 	protected Rectangle hitBox;
-	protected int time = 0;
+	
+	private boolean alive = true;
+	private boolean blademaster, void1, glacial, hextech, demon;
+	private int isHit = 0, isStunned = 0;
+	private Timer hit, stunned;
+	private ImageIcon slash = new ImageIcon("slash.jpg"), stun;
+	private int time = 0;
 
 	public Champion(int x, int y, int level){
 		
 		this.x = x;
 		this.y = y;
-		hitBox = new Rectangle(x, y, 100, 100);
+		hitBox = new Rectangle(x, y, 85, 85);
 	}
 	
 	public void actionPerformed(ActionEvent e){
@@ -968,7 +977,7 @@ class Champion implements ActionListener{
 	/* get methods */
 	
 	public Rectangle getHitBox(){
-		hitBox.setBounds(x, y, 100, 100);
+		hitBox.setBounds(x, y, 85, 85);
 		return hitBox;
 	}
 	
@@ -1028,7 +1037,7 @@ class Champion implements ActionListener{
 	
 	//if mouse is hovering
 	public boolean contains(int mX, int mY) {
-    	return (mX>=x && mX<x+100 && mY>=y && mY<y+100);
+    	return (mX>=x && mX<x+85 && mY>=y && mY<y+85);
     }
 	
 	//custom draw at x and y

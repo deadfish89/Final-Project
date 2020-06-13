@@ -23,10 +23,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private ArrayList<Champion> enemyChamps = new ArrayList<>();
 	
 	private Player player; 
-	private Champion[][] board = new Champion[10][3];
-	private Champion[][] enemyBoard = new Champion[10][3];
-	private Tile[][] field = new Tile[10][3];
-	private Tile[][] enemyField = new Tile[10][3];
+	private Champion[][] board = new Champion[10][2];
+	private Champion[][] enemyBoard = new Champion[10][2];
+	private Tile[][] field = new Tile[10][2];
+	private Tile[][] enemyField = new Tile[10][2];
 	private Tile[] benchField = new Tile[10];
 	private Champion[] bench = new Champion[10];
 	private Champion pickedChamp = null;
@@ -41,8 +41,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	
 		//panel
 		this.setLayout(new BorderLayout());
-		this.setPreferredSize(new Dimension(1000,800)); 
-		w = 1000; h = 800; //this.getWidth() gives 0 for some reason
+		this.setPreferredSize(new Dimension(1000,600)); 
+		w = 1000; h = 600; //this.getWidth() gives 0 for some reason
 		
 		this.player = player;
 		
@@ -56,7 +56,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		//initialize field
 		for (int i=0; i<10; i++){
-			for (int j=0; j<3; j++){
+			for (int j=0; j<2; j++){
 				field[i][j] = new Tile(i*100, h/2 +j*100 );
 				enemyField[i][j] = new Tile(i*100, j*100);
 			}
@@ -322,7 +322,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		
 		//champions on the board
 		for (int i=0; i<10; i++){
-			for (int j=0; j<3; j++){
+			for (int j=0; j<2; j++){
 				if (board[i][j]!=null && board[i][j].isAlive()){
 					board[i][j].myDraw(g);
 				}else if (pickedChamp!=null){
@@ -511,7 +511,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					originalX = champs.get(i).getX(); 
 					originalY = champs.get(i).getY();
 					for (int j=0; j<10; j++){
-						for (int k=0; k<3; k++){
+						for (int k=0; k<2; k++){
 							if (field[j][k].contains(originalX, originalY)){
 								field[j][k].removeChamp();
 								board[j][k] = null;
@@ -552,7 +552,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		//champion released on board
 		for (int i=0; i<10; i++){
-			for (int j=0; j<3; j++){
+			for (int j=0; j<2; j++){
 				if (field[i][j].contains(mX, mY) && pickedChamp!=null){
 					onTile = true;
 					if (field[i][j].isEmpty()){
@@ -586,7 +586,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								benchField[k].addChamp();
 								bench[k] = pickedChamp;
 							}
-							for (int l=0; l<3; l++){
+							for (int l=0; l<2; l++){
 								if (field[k][l].contains(originalX, originalY)){
 									field[k][l].addChamp();
 									board[k][l] = pickedChamp;
@@ -610,7 +610,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						
 						//if champion was from board
 						for (int j=0; j<10; j++){
-							for (int k=0; k<3; k++){
+							for (int k=0; k<2; k++){
 								if (field[j][k].contains(originalX, originalY)){
 									this.removeFromBoard(pickedChamp);
 									benchChamps.add(pickedChamp);
@@ -627,7 +627,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								benchField[j].addChamp();
 								bench[j] = pickedChamp;
 							}
-							for (int k=0; k<3; k++){
+							for (int k=0; k<2; k++){
 								if (field[j][k].contains(originalX, originalY)){
 									field[j][k].addChamp();
 									board[j][k] = pickedChamp;
@@ -646,7 +646,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						benchField[i].addChamp();
 						bench[i] = pickedChamp;
 					}
-					for (int j=0; j<3; j++){
+					for (int j=0; j<2; j++){
 						if (field[i][j].contains(originalX, originalY)){
 							field[i][j].addChamp();
 							board[i][j] = pickedChamp;

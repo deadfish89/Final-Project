@@ -1,46 +1,41 @@
+import java.awt.*; 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.*; 
+import java.util.Arrays;
 
-class Menu extends JPanel implements ActionListener {
-    private JLabel title;
-    private JButton play,instruction;
-    private ImageIcon logo;
-    public Menu(){
-        logo = new ImageIcon("TitleLogo.png");
-        play = new JButton("Play");
-        instruction = new JButton("Instructions");
-        title = new JLabel(logo);
-        play.addActionListener(this);
-	play.setBackground(new Color(246,178,61));
-	play.setOpaque(true);
-	play.setBorder(BorderFactory.createBevelBorder(0));
-	play.setFont(new Font("SansSerif",Font.PLAIN,30));
-        instruction.addActionListener(this);
-	instruction.setBackground(new Color(246,178,61));
-	instruction.setOpaque(true);
-	instruction.setBorder(BorderFactory.createBevelBorder(0));
-	instruction.setFont(new Font("SansSerif",Font.PLAIN,30));
-        this.setBackground(Color.WHITE);
-        this.setLayout(null);
-        title.setBounds(0,0,1300,350);
-        play.setBounds(400,400,500,75);
-        instruction.setBounds(400,550,500,75);
-        this.add(title);
-        this.add(play);
-        this.add(instruction);
-    }
-    public void paintComponent(Graphics g){
-        super.paintComponent(g);
-	g.setFont(new Font("SansSerif",Font.PLAIN,20));
-	g.drawString("By:Bryan Jiang and Eric Chen",1000,650);
-    }
-    public void actionPerformed(ActionEvent event) {
-            if(event.getSource()==play){
-		TFT.LoadGame();
-            }
-            if(event.getSource()==instruction){
-                TFT.LoadInstructions();
-            }
-    }
+public class TFT{
+
+	public static JFrame frame;
+	public static Container container;
+	
+	public static void main(String[] args){
+		frame = new JFrame("Teamfight Tactics");
+		container = frame.getContentPane();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+		LoadMenu();
+	}
+	public static void LoadMenu(){
+		container.removeAll();
+		Menu menu = new Menu();
+	    container.add(menu,BorderLayout.CENTER);
+		frame.revalidate();
+		frame.repaint();
+		frame.pack();
+	}
+	public static void LoadGame(){
+		container.removeAll();
+		Player player = new Player();
+		Board board = new Board(player);
+		container.add(board, BorderLayout.CENTER);
+		container.add(new SouthPanel(player, board), BorderLayout.SOUTH);
+		frame.pack();
+	}
+	public static void LoadInstructions(){
+		container.removeAll();
+		InstructionPanel panel = new InstructionPanel();
+		container.add(panel, BorderLayout.CENTER);
+		frame.revalidate();
+		frame.repaint();
+	}
 }

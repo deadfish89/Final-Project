@@ -16,8 +16,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private final int time = 16;
 	private ImageIcon bg, b, bg2;
 	
-	private int[] origins = new int[7];
-	private int[] traits = new int[6]; 
+	private int[] origins = new int[7], traits = new int[6], activeOrigins = new int[7], activeTraits = new int[6];
+
 	
 	private int nBoardChamps = 0;
 	private ArrayList<Champion> boardChamps = new ArrayList<Champion>();
@@ -172,6 +172,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				case 18:
 					temp = new Yasuo(x, y, level);
 					break;
+				case 19:
+					temp = new Ashe(x, y, level);
+					break;
 			}
 			bench[index] = temp;
 			benchField[index].addChamp();
@@ -199,84 +202,159 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public void refreshTraits(){
 		Arrays.fill(traits, 0);
 		Arrays.fill(origins, 0);
-		int len = nBoardChamps;
+		Arrays.fill(activeTraits, 0);
+		Arrays.fill(activeOrigins, 0);
 		ArrayList<Champion> visited = new ArrayList<>();
-		for (int i=0; i<len; i++){
+		for (int i=0; i<nBoardChamps; i++){
 			boolean isDuplicate = false;
 			Champion cur = boardChamps.get(i);
-			visited.add(cur);
 			
 			for (int j=0; j<visited.size(); j++){
-				if (cur.getClass().equals(visited.get(i).getClass()))
+				if (cur.getClass().equals(visited.get(j).getClass()))
 					isDuplicate = true;
 			}
 			
 			if (!isDuplicate){
-			traits[cur.getTrait()]++;
-			origins[cur.getOrigin()]++;
+				traits[cur.getTrait()]++;
+				origins[cur.getOrigin()]++;
 			}
+			visited.add(cur);
 		}
 		for (int i=0; i<nBoardChamps; i++){
 			Champion cur = boardChamps.get(i);
+			cur.resetStats();
 			int trait = cur.getTrait();
 			int origin = cur.getOrigin();
 			switch (trait){
 				case 0:
-					if (traits[trait]==6) cur.setAP(cur.getAP()*2);
-					else if(traits[trait]>=3) cur.setAP((int)(cur.getAP()*1.3));
+					if (traits[trait]==6){
+						cur.setAP(cur.getAP()*2);
+						activeTraits[trait] = 3;
+					}
+					else if(traits[trait]>=3){
+						cur.setAP((int)(cur.getAP()*1.3));
+						activeTraits[trait] = 2;
+					}
 					break;
 				case 1:
-					if (traits[trait]==4) cur.setAS(cur.getAS()*1.85);
-					else if(traits[trait]>=2) cur.setAS(cur.getAS()*1.25);
+					if (traits[trait]==4){
+						cur.setAS(cur.getAS()*1.85);
+						activeTraits[trait] = 3;
+					}
+					else if(traits[trait]>=2){
+						cur.setAS(cur.getAS()*1.25);
+						activeTraits[trait] = 2;
+					}
 					break;
 				case 2:
-					if (traits[trait]==1) cur.setArmor((int)(cur.getArmor()*1.3));
-					else if(traits[trait]==2) cur.setArmor(cur.getArmor()*2);
-					else if(traits[trait]==3) cur.setArmor(cur.getArmor()*3);
+					if (traits[trait]==1){
+						cur.setArmor((int)(cur.getArmor()*1.3));
+						activeTraits[trait] = 1;
+					}
+					else if(traits[trait]==2){
+						cur.setArmor(cur.getArmor()*2);
+						activeTraits[trait] = 2;
+					}
+					else if(traits[trait]==3){
+						cur.setArmor(cur.getArmor()*3);
+						activeTraits[trait] = 3;
+					}
 					break;
 				case 3:
-					if (traits[trait]==3) cur.setHP(cur.getHP()*2);
+					if (traits[trait]==3){
+						cur.setHP(cur.getHP()*2);
+						activeTraits[trait] = 3;
+					}
 					break;
 				case 4:
 					cur.setVel(cur.getVel()*2);
+					activeTraits[trait] = 3;
 					break;
 				case 5:
-					if (traits[trait]==3) 
+					if (traits[trait]==3){ 
+						cur.hasBlademaster(true);
+						activeTraits[trait] = 3;
+					}
+					else cur.hasBlademaster(false);
 					break;
 			}
 			
 			switch(origin){
 				case 0:
-					if (origins[origin]==7) cur.setAP(cur.getAP()*2); //change to elemental effect
-					else if(origins[origin]>=5) cur.setAP((int)(cur.getAP()*1.3)); //change to elemental effect
+					if (origins[origin]==7){
+						cur.setAP(cur.getAP()*2); //change to elemental 
+						activeOrigins[origin] = 3;
+					}
+					else if(origins[origin]>=5){
+						cur.setAP((int)(cur.getAP()*1.3)); //change to elemental effect
+						activeOrigins[origin] = 2;
+					}
 					break;
 				case 1:
-					if (origins[origin]==2) cur.hasGlacial();
+					if (origins[origin]==2){
+						cur.hasGlacial(true);
+						activeOrigins[origin] = 3;
+					}else cur.hasGlacial(false);
 					break;
 				case 2:
-					if (origins[origin]==3) cur.hasDemon();
+					if (origins[origin]==3){
+						cur.hasDemon(true);
+						activeOrigins[origin] = 3;
+					}
+					else cur.hasDemon(false);
 					break;
 				case 3:
 					if (origins[origin]==2){
 						cur.setAD(cur.getAD()*2);
 						cur.setAP(cur.getAP()*2);
+						activeOrigins[origin] = 3;
 					}
 					break;
 				case 4:
-					if (origins[origin]>=3) cur.hasVoid();
+					if (origins[origin]>=3){
+						cur.hasVoid(true);
+						activeOrigins[origin] = 3;
+					}else cur.hasVoid(false);
 					break;
 				case 5:
-					if (origins[origin]==2) cur.hasHextech();
+					if (origins[origin]==2) {
+						cur.hasHextech(true);
+						activeOrigins[origin] = 3;
+					}else cur.hasHextech(false);
 					break;
 				case 6:
-					cur.setArmor(cur.getArmor()*2); //change to if the enemy has more than 3 champions alive get double armor
+					int count = 0;
+					for (int j=0; j<enemyChamps.size(); j++){
+						if (enemyChamps.get(j).isAlive()) count++;
+					}
+					if (count>=3) {
+						cur.setArmor(cur.getArmor()*2); 
+					}
+					activeOrigins[origin] = 3;
+					break;
 			}
 			
 			}
 		}
 		
-	public void getTraits(){
-		
+	public boolean inPrepPhase(){
+		return (!inGame && !paused);
+	}
+	
+	public int[] getActiveTraits(){
+		return activeTraits;
+	}
+	
+	public int[] getActiveOrigins(){
+		return activeOrigins;
+	}
+	
+	public int[] getTraits(){
+		return traits;
+	}
+	
+	public int[] getOrigins(){
+		return origins;
 	}
 	
 	private void rangedAttack(Champion attacker, Champion target){
@@ -812,6 +890,10 @@ class Champion implements ActionListener{
 		alive = true;
 	}
 	
+	public void resetStats(){
+		hp=originalHP; curHP = hp; ad=originalAD; ap=originalAP; armor =originalArmor; mr = originalMR; as = originalAS;
+	}
+	
 	public void addTime(int time){
 		this.time += time;
 	}
@@ -923,24 +1005,24 @@ class Champion implements ActionListener{
 		return origin;
 	}
 	
-	public void hasBlademaster(){
-		blademaster = true;
+	public void hasBlademaster(boolean hasBlademaster){
+		blademaster = hasBlademaster;
 	}
 	
-	public void hasGlacial(){
-		glacial = true;
+	public void hasGlacial(boolean hasGlacial){
+		glacial = hasGlacial;
 	}
 	
-	public void hasVoid(){
-		void1 = true;
+	public void hasVoid(boolean hasVoid){
+		void1 = hasVoid;
 	}
 	
-	public void hasHextech(){
-		hextech = true;
+	public void hasHextech(boolean hasHextech){
+		hextech = hasHextech;
 	}
 	
-	public void hasDemon(){
-		demon = true;
+	public void hasDemon(boolean hasDemon){
+		demon = hasDemon;
 	}
 	
 	/* set methods */
@@ -1406,6 +1488,26 @@ class Yasuo extends Champion{
 		origin = 0; trait = 5; 
 		isRanged = false;
 		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=10; range = 50;
+		for (int i=1; i<lvl; i++){
+			originalHP*=1.3;
+			originalAD*=1.3;
+			originalAP*=1.3;
+			originalMR*=1.3;
+			originalAS*=1.3;
+			originalArmor*=1.3;
+		}
+		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
+		curHP = hp;
+	}
+}
+
+class Ashe extends Champion{
+	public Ashe(int x, int y, int level){
+		super(x, y, level);
+		image = new ImageIcon("ashe.png");
+		origin = 1; trait = 1;
+		isRanged = true;
+		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;

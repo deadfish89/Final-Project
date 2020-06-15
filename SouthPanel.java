@@ -91,7 +91,7 @@ class LeftPanel extends JPanel implements ActionListener{
 	
 	public void actionPerformed(ActionEvent e){
 		if(e.getSource()==level){
-			if (player.getGold()>=4) {
+			if (player.getGold()>=4&&player.getLevel()<10) {
 				player.spendGold(4);
 				player.gainXP(4);
 				leftPanel2.redisplay();
@@ -123,7 +123,12 @@ class LeftPanel2 extends JPanel{
 	}
 	
 	public void display(){
-		xpLabel = new JLabel("XP: " + player.getXP(), JLabel.CENTER);
+		if(player.getLevel()==10){
+			xpLabel = new JLabel("XP: MAX", JLabel.CENTER);
+		}
+		else{
+			xpLabel = new JLabel("XP: " + player.getXP()+"/"+(4*player.getLevel()), JLabel.CENTER);
+		}
 		goldLabel = new JLabel("Gold: " + player.getGold(), JLabel.CENTER);
 		lvlLabel = new JLabel("Level: " + player.getLevel(), JLabel.CENTER);
 		

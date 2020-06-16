@@ -127,7 +127,7 @@ class LeftPanel2 extends JPanel{
 			xpLabel = new JLabel("XP: MAX", JLabel.CENTER);
 		}
 		else{
-			xpLabel = new JLabel("XP: " + player.getXP()+"/"+(4*player.getLevel()), JLabel.CENTER);
+			xpLabel = new JLabel("XP: " + player.getXP()+"/"+(player.getLevelUp()), JLabel.CENTER);
 		}
 		goldLabel = new JLabel("Gold: " + player.getGold(), JLabel.CENTER);
 		lvlLabel = new JLabel("Level: " + player.getLevel(), JLabel.CENTER);
@@ -184,10 +184,10 @@ class Shop extends JPanel implements ActionListener{
 	private JButton[] shopItems;
 	private ChampionPool champPool;
 	//has the images of the champions in shop
-	private ImageIcon[] items = new ImageIcon[19];
+	private ImageIcon[] items = new ImageIcon[20];
 	
 	public Shop(Player player, Board board, LeftPanel2 leftPanel2){
-		price = new int[] {5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1,};
+		price = new int[] {5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1};
 		champPool = new ChampionPool(player);
 		inShop = new int[5];
 		shopItems = new JButton[5];
@@ -220,6 +220,7 @@ class Shop extends JPanel implements ActionListener{
 		items[16] = new ImageIcon("sivir.png");
 		items[17] = new ImageIcon("jinx.png");
 		items[18] = new ImageIcon("yasuo.png");
+		items[19] = new ImageIcon("ashe.png");
 		
 		loadImages();
 		

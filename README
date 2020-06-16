@@ -1,16 +1,16 @@
 # Final-Project
 STUFF TO DO: 
+HI COPY EVERYTHING BC I ADDED ASHE 
 
 Fighting
 -abilities** find champion classes at the bottom of board.java
 -make champions not overlap each other when fighting (like minion block)
 -make better hitboxes
 
-Display
+Display (i got this ..i think)
 -display champion stats when hovering 
--mana bar
--display damage taken when hit
--display traits and origins i'm doing this right now
+-mana bar 
+-hp bar 
 
 Game
 -are we gonna make AI that play as well or artificial levels?
@@ -21,7 +21,7 @@ Change button colors and display
 Improve instructions
 
 Other
--make effect for elemental origin
+-make effect for elemental origin 
 
 
 

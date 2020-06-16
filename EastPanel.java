@@ -23,7 +23,7 @@ public class EastPanel extends JPanel implements ActionListener{
 		
 		Arrays.fill(goldTraits,-1); Arrays.fill(silverTraits, -1); Arrays.fill(bronzeTraits,-1); Arrays.fill(goldOrigins,-1); Arrays.fill(silverOrigins, -1); Arrays.fill(bronzeOrigins, -1);
 		
-		timer = new Timer(1000, this);
+		timer = new Timer(200, this);
 		timer.start();
 	}
 	

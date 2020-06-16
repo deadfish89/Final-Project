@@ -16,7 +16,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private final int time = 16;
 	private ImageIcon bg, b, bg2;
 	
-	private int[] origins = new int[7], traits = new int[6], activeOrigins = new int[7], activeTraits = new int[6];
+	private int[] origins = new int[7], traits = new int[6], activeOrigins = new int[7], activeTraits = new int[6], enemyOrigins = new int[7], enemyTraits = new int[6];
 
 	
 	private int nBoardChamps = 0;
@@ -47,8 +47,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		this.player = player;
 		
 		/* temp add enemy champions */
-		enemyChamps.add(new Lux(0,85,1));
-		//enemyChamps.add(new Wukong(100,100,1));
+		enemyChamps.add(new Ashe(0,85,1));
+		enemyChamps.add(new Braum(100,100,1));
 		//enemyChamps.add(new Jinx(100,300,1));
 		for (int i=0; i<enemyChamps.size(); i++){
 			enemyBoard[0][i]=enemyChamps.get(i);
@@ -333,8 +333,105 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					activeOrigins[origin] = 3;
 					break;
 			}
-			
 			}
+			
+			for (int i=0; i<enemyChamps.size(); i++){
+			Champion cur = enemyChamps.get(i);
+			cur.resetStats();
+			int trait = cur.getTrait();
+			int origin = cur.getOrigin();
+			switch (trait){
+				case 0:
+					if (enemyTraits[trait]==6){
+						cur.setAP(cur.getAP()*2);
+					}
+					else if(enemyTraits[trait]>=3){
+						cur.setAP((int)(cur.getAP()*1.3));
+					}
+					break;
+				case 1:
+					if (enemyTraits[trait]==4){
+						cur.setAS(cur.getAS()*1.85);
+					}
+					else if(enemyTraits[trait]>=2){
+						cur.setAS(cur.getAS()*1.25);
+					}
+					break;
+				case 2:
+					if (enemyTraits[trait]==1){
+						cur.setArmor((int)(cur.getArmor()*1.3));
+					}
+					else if(enemyTraits[trait]==2){
+						cur.setArmor(cur.getArmor()*2);
+					}
+					else if(enemyTraits[trait]==3){
+						cur.setArmor(cur.getArmor()*3);
+					}
+					break;
+				case 3:
+					if (enemyTraits[trait]==3){
+						cur.setHP(cur.getHP()*2);
+					}
+					break;
+				case 4:
+					cur.setVel(cur.getVel()*2);
+					break;
+				case 5:
+					if (enemyTraits[trait]==3){ 
+						cur.hasBlademaster(true);
+					}
+					else cur.hasBlademaster(false);
+					break;
+			}
+			
+			switch(origin){
+				case 0:
+					if (enemyOrigins[origin]==7){
+						cur.setAP(cur.getAP()*2); //change to elemental 
+					}
+					else if(enemyOrigins[origin]>=5){
+						cur.setAP((int)(cur.getAP()*1.3)); //change to elemental effect
+					}
+					break;
+				case 1:
+					if (enemyOrigins[origin]==2){
+						cur.hasGlacial(true);
+					}else cur.hasGlacial(false);
+					break;
+				case 2:
+					if (enemyOrigins[origin]==3){
+						cur.hasDemon(true);
+					}
+					else cur.hasDemon(false);
+					break;
+				case 3:
+					if (enemyOrigins[origin]==2){
+						cur.setAD(cur.getAD()*2);
+						cur.setAP(cur.getAP()*2);
+					}
+					break;
+				case 4:
+					if (enemyOrigins[origin]>=3){
+						cur.hasVoid(true);
+					}else cur.hasVoid(false);
+					break;
+				case 5:
+					if (enemyOrigins[origin]==2) {
+						cur.hasHextech(true);
+					}else cur.hasHextech(false);
+					break;
+				case 6:
+					int count = 0;
+					for (int j=0; j<enemyChamps.size(); j++){
+						if (boardChamps.get(j).isAlive()) count++;
+					}
+					if (count>=3) {
+						cur.setArmor(cur.getArmor()*2); 
+					}
+					break;
+			}
+			}
+			
 		}
 		
 	public boolean inPrepPhase(){
@@ -858,13 +955,14 @@ class Champion implements ActionListener{
 	
 	private boolean alive = true;
 	private boolean blademaster, void1, glacial, hextech, demon;
-	private int isHit = 0, isStunned = 0;
-	private Timer hit, stunned;
+	private int isHit = 0, isStunned = 0, isDamaged = 0;
+	private ArrayList<Integer> damageTaken = new ArrayList<>(), damageType = new ArrayList<>();
+	private ArrayList<Timer> timers = new ArrayList<>();
+	private Timer hit, stunned, damaged;
 	private ImageIcon slash = new ImageIcon("slash.jpg"), stun;
-	private int time = 0;
+	private int time = 0, count = 0;
 
 	public Champion(int x, int y, int level){
-		
 		this.x = x;
 		this.y = y;
 		hitBox = new Rectangle(x, y, 85, 85);
@@ -878,6 +976,16 @@ class Champion implements ActionListener{
 		else if (e.getSource()==stunned){
 			isStunned--;
 			stunned.stop();
+		}
+		else {
+			for (int i=0; i<count; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					count--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
 		}
 	}
 	
@@ -925,34 +1033,49 @@ class Champion implements ActionListener{
 		hit.start();
 	}
 	
-	public void takeDmg(int dmg){
-		curHP-=dmg;
+	public void takeDmg(int damage, int type){
+		curHP-=damage;
 		if (curHP<=0){
 			alive = false;
 		}
+		isDamaged++;
+		damageTaken.add(damage);
+		damageType.add(type);
+		timers.add(new Timer(500, this));
+		timers.get(count).start();
+		count++;
 	}
 	
 	public void hitsAuto(Champion target){
+		int type = 1;
 		curMana+=10;
 		int targetArmor = target.getArmor();
 		int damage = 0;
 		if (glacial){
-			if ((int)(Math.random()*3)==0) target.getStunned(1);
+			if ((int)(Math.random()*3)==0){
+				System.out.println(target + "stunned");
+				target.getStunned(1);
+			}
 		}
 		if (void1){
 			targetArmor = 0;
+			type = 3;
 		}
 		if (demon){
+			if ((int)(Math.random()*4)==0){
+			System.out.println("stole mana");
 			target.setMana(target.getCurMana()-20);
+			}
 		}
+		
 		damage = ad-ad*targetArmor/150;
-		target.takeDmg(damage);
+		target.takeDmg(damage, type);
 		if (!isRanged) target.getHit();
 		
 		if (blademaster) {
 			if ((int)(Math.random()*3)==0){
-				target.takeDmg(damage);
-				target.getHit();
+				System.out.println("extra auto");
+				this.hitsAuto(target);
 			}
 		}
 	}
@@ -1128,7 +1251,15 @@ class Champion implements ActionListener{
 		if (isHit>0){
 			g.drawImage(slash.getImage(), x, y, null);
 		}
-		else if (isStunned>0) g.drawImage(stun.getImage(), x, y-30, null);
+		if (isStunned>0) g.drawImage(stun.getImage(), x, y-30, null);
+		if (isDamaged>0) {
+			for (int i=0; i<damageTaken.size(); i++){
+				if (damageType.get(i)==1) g.setColor(Color.RED);
+				else if (damageType.get(i)==2) g.setColor(Color.BLUE);
+				else g.setColor(Color.WHITE);
+				g.drawString(damageTaken.get(i)+"", x, y-20*i-10);
+			}
+		}
     }
 }
 
@@ -1293,7 +1424,7 @@ class Varus extends Champion{
 	public Varus(int x, int y, int level){
 		super(x, y, level);
 		image = new ImageIcon("varus.png");
-		origin = 0; trait = 1;
+		origin = 2; trait = 1;
 		isRanged = true;
 		originalHP=1250; originalAD=100; originalAP=75; originalAS=1.5; originalArmor=10; originalMR=10; range = 300;
 		for (int i=1; i<lvl; i++){

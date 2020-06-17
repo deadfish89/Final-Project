@@ -19,9 +19,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private int[] origins = new int[7], traits = new int[6], activeOrigins = new int[7], activeTraits = new int[6], enemyOrigins = new int[7], enemyTraits = new int[6];
 
 	
-	private int nBoardChamps = 0;
-	private ArrayList<Champion> boardChamps = new ArrayList<Champion>();
-	private ArrayList<Champion> enemyChamps = new ArrayList<>();
+	public static int nBoardChamps = 0;
+	public static ArrayList<Champion> boardChamps = new ArrayList<Champion>();
+	public static ArrayList<Champion> enemyChamps = new ArrayList<>();
 	
 	private Player player; 
 	private Champion[][] board = new Champion[10][3];
@@ -33,7 +33,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private Champion pickedChamp = null;
 	private ArrayList<Champion> champs = new ArrayList<Champion>();
 	private ArrayList<Champion> benchChamps = new ArrayList<Champion>();
-	private int w, h;
+	public static int w, h;
 	private int mX, mY, originalX, originalY;
 	
 	private ArrayList<Auto> autos = new ArrayList<Auto>();
@@ -49,9 +49,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		/* temp add enemy champions */
 		enemyChamps.add(new Ashe(0,85,1, this));
 		enemyChamps.add(new Braum(85,85,1, this));
-		//enemyChamps.add(new Jinx(85,170,1, this));
+		enemyChamps.add(new Jinx(85,170,1, this));
 		for (int i=0; i<enemyChamps.size(); i++){
 			enemyBoard[0][i]=enemyChamps.get(i);
+			enemyChamps.get(i).isEnemyChamp();
 		}
 		this.refreshTraits();
 
@@ -510,10 +511,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	}
 	
 	public Champion findFurthest(Champion attacker, boolean isEnemy){
-		double dis = 0;
+		double dis = -1;
 		Champion target = null;
 		if (isEnemy){
-			for (int i=0; i<boardChamps.size(); i++){
+			for (int i=0; i<nBoardChamps; i++){
 				Champion cur = boardChamps.get(i);
 				double curDis = Math.sqrt(Math.pow(attacker.getX()-cur.getX(), 2) + Math.pow(attacker.getY()-cur.getY(), 2));
 				if (cur.isAlive() && curDis > dis){
@@ -539,6 +540,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		Graphics2D g2 = (Graphics2D) g;
 		
 		Font font;
+		g.setColor(Color.BLACK);
 		
 		//background
 		g.drawImage(bg.getImage(), 0, -1, w, h-83, null);
@@ -556,12 +558,18 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			for (int j=0; j<3; j++){
 				if (board[i][j]!=null && board[i][j].isAlive()){
 					board[i][j].myDraw(g);
+					AffineTransform originalAngle = g2.getTransform();
+					board[i][j].drawAbility(g2);
+					g2.setTransform(originalAngle);
 				}else if (pickedChamp!=null){
 					field[i][j].myDraw(g);
 				}
 				
 				if (enemyBoard[i][j]!=null && enemyBoard[i][j].isAlive()){
 					enemyBoard[i][j].myDraw(g);
+					AffineTransform originalAngle = g2.getTransform();
+					enemyBoard[i][j].drawAbility(g2);
+					g2.setTransform(originalAngle);
 				}
 			}
 		}
@@ -683,6 +691,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								}					
 							}
 							else cur.move(target);
+						}
+						else if (!cur.isAlive()){
+							for (int j=0; j<nBoardChamps; j++){
+								if (boardChamps.get(j).getName().equals("Jinx")){
+									boardChamps.get(j).checkIfAssisted(cur);
+								}
+							}
 						}
 					}
 					else{
@@ -950,6 +965,7 @@ class Tile{
     }
 	
 	public void myDraw(Graphics g) {
+		g.setColor(Color.BLACK);
     	g.drawRect(x, y, 85, 85);
     }
 }
@@ -963,17 +979,17 @@ class Auto extends Rectangle{
 	private Champion attacker, target;
 	
 	public Auto(Champion attacker, Champion target){
-		super(attacker.getX()+50, attacker.getY()+50, 5, 5);
+		super(attacker.getX()+42, attacker.getY()+42, 5, 5);
 		vel = 10;
 		this.attacker = attacker;
 		this.target = target;
-		x = attacker.getX()+50;
-		y = attacker.getY()+50;
+		x = attacker.getX()+42;
+		y = attacker.getY()+42;
 	}
 	
 	public void move(){
-		dX = target.getX()+50-x;
-		dY = target.getY()+50-y;
+		dX = target.getX()+42-x;
+		dY = target.getY()+42-y;
 		angle = Math.atan2(dY, dX)*(180/Math.PI);
 		vX = (vel*(90-Math.abs(angle))/90);
 		if (angle<=0) vY = Math.abs(vX)-vel;
@@ -1003,6 +1019,7 @@ class Champion implements ActionListener{
 	protected Board board;
 	protected int x, y, originalX, originalY;
 	protected ImageIcon image;
+	protected String name;
 	protected int hp=0, lvl=0, ad=0, ap=0, armor = 0, mr = 0, curHP = 0, mana = 0, curMana = 0, range = 0;
 	protected double as = 0, originalAS;
 	protected int originalHP, originalAD, originalMR, originalAP, originalArmor;
@@ -1011,7 +1028,7 @@ class Champion implements ActionListener{
 	protected int vel = 5;
 	protected Rectangle hitBox;
 	
-	private boolean alive = true;
+	protected boolean alive = true;
 	private boolean blademaster, void1, glacial, hextech, demon;
 	protected int isHit = 0, isStunned = 0, isDamaged = 0;
 	protected ArrayList<Integer> damageTaken = new ArrayList<>(), damageType = new ArrayList<>();
@@ -1042,6 +1059,7 @@ class Champion implements ActionListener{
 			for (int i=0; i<nTimers; i++){
 				if (e.getSource()==timers.get(i)){
 					damageTaken.remove(i);
+					damageType.remove(i);
 					nTimers--;
 					timers.get(i).stop();
 					timers.remove(i);
@@ -1100,7 +1118,7 @@ class Champion implements ActionListener{
 		if (curHP<=0){
 			alive = false;
 		}
-		this.setMana(curMana+damage/10);
+		this.setMana(curMana+damage/15);
 		isDamaged++;
 		damageTaken.add(damage);
 		damageType.add(type);
@@ -1117,7 +1135,7 @@ class Champion implements ActionListener{
 		if (glacial){
 			if ((int)(Math.random()*4)==0){
 				System.out.println(target + "stunned");
-				target.getStunned(1);
+				target.getStunned(0.5);
 			}
 		}
 		if (void1){
@@ -1150,9 +1168,13 @@ class Champion implements ActionListener{
 		}
 	}
 	
+	public void usePassive(){
+		
+	}
+	
 	public void move(Champion target){
-		int dX = target.getX()+50-(x+50);
-		int dY = target.getY()+50-(y+50);
+		int dX = target.getX()+42-(x+42);
+		int dY = target.getY()+42-(y+42);
 		double angle = Math.atan2(dY, dX)*(180/Math.PI);
 		int vX = (int)(vel*(90-Math.abs(angle))/90);
 		int vY = 0;
@@ -1177,6 +1199,10 @@ class Champion implements ActionListener{
 		int dX = x-target.getX();
 		int dY = y-target.getY();
 		return (Math.sqrt(Math.pow(dX,2)+Math.pow(dY,2))<=range);
+	}
+	
+	public void checkIfAssisted(Champion champ){
+		//is overridden by jinx
 	}
 	
 	/* traits and origins */
@@ -1236,10 +1262,16 @@ class Champion implements ActionListener{
 	
 	public void setMana(int mana){
 		if (mana<0) mana = 0;
-		curMana = mana;
+		else if (mana<=this.mana){
+			curMana = mana;
+		}
 	}
 	
 	/* get methods */
+	
+	public String getName(){
+		return name;
+	}
 	
 	public Rectangle getHitBox(){
 		hitBox.setBounds(x, y, 85, 85);
@@ -1331,6 +1363,10 @@ class Champion implements ActionListener{
 			}
 		}
     }
+	
+	public void drawAbility(Graphics2D g){
+		
+	}
 }
 
 class Annie extends Champion{
@@ -1338,9 +1374,10 @@ class Annie extends Champion{
 	public Annie(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("annie.png");
+		name = "Annie";
 		origin = 0; trait = 0;
 		isRanged = true;
-		originalHP=1500; originalAD=100; originalAP=100; originalAS=1; originalArmor=10; originalMR=10; range = 250; mana = 150;
+		originalHP=1450; originalAD=100; originalAP=100; originalAS=1; originalArmor=10; originalMR=10; range = 250; mana = 150;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1358,6 +1395,7 @@ class Wukong extends Champion{
 	public Wukong(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("wukong.png");
+		name = "Wukong";
 		origin = 6; trait = 3;
 		isRanged = false;
 		originalHP=2000; originalAD=150; originalAP=100; originalAS=1; originalArmor=30; originalMR=30; range = 100; mana = 150;
@@ -1378,6 +1416,7 @@ class Chogath extends Champion{
 	public Chogath(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("cho'gath.png");
+		name = "Cho'gath";
 		origin = 4; trait = 3;
 		isRanged = false;
 		originalHP=2500; originalAD=100; originalAP=100; originalAS=1; originalArmor=30; originalMR = 30; range = 100; mana = 150;
@@ -1398,6 +1437,7 @@ class Velkoz extends Champion{
 	public Velkoz(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("vel'koz.png");
+		name = "Vel'koz";
 		origin = 4; trait = 0;
 		isRanged = true;
 		originalHP=1500; originalAD=100; originalAP=100; originalAS=1; originalArmor=10; originalMR=10; range = 300; mana = 150;
@@ -1418,6 +1458,7 @@ class Brand extends Champion{
 	public Brand(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("brand.png");
+		name = "Brand";
 		origin = 0; trait = 0;
 		isRanged = true;
 		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR = 10; range = 300; mana = 120;
@@ -1437,6 +1478,7 @@ class Lux extends Champion{
 	public Lux(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("lux.png");
+		name = "Lux";
 		origin = 0; trait = 0;
 		isRanged = true;
 		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR = 10; range = 300;  mana = 120;
@@ -1456,6 +1498,7 @@ class Nautilus extends Champion{
 	public Nautilus(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("nautilus.png");
+		name = "Nautilus";
 		origin = 0; trait = 2;
 		isRanged = false;
 		originalHP=2000; originalAD=50; originalAP=75; originalAS=1; originalArmor=30; originalMR=30; range = 100;  mana = 120;
@@ -1475,6 +1518,7 @@ class Syndra extends Champion{
 	public Syndra(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("syndra.png");
+		name = "Syndra";
 		origin = 2; trait = 0;
 		isRanged = true;
 		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 300;  mana = 100;
@@ -1494,6 +1538,7 @@ class Varus extends Champion{
 	public Varus(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("varus.png");
+		name = "Varus";
 		origin = 2; trait = 1;
 		isRanged = true;
 		originalHP=1250; originalAD=100; originalAP=75; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100;
@@ -1514,6 +1559,7 @@ class Veigar extends Champion{
 	public Veigar(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("veigar.png");
+		name = "Veigar";
 		origin = 2; trait = 0;
 		isRanged = true;
 		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 300; mana = 100;
@@ -1533,6 +1579,7 @@ class Vi extends Champion{
 	public Vi(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("vi.png");
+		name = "Vi";
 		origin = 5; trait = 3;
 		isRanged = false;
 		originalHP=1500; originalAD=70; originalAP=75;originalAS=1; originalArmor=20; originalMR=20; range = 100; mana = 120;
@@ -1552,6 +1599,7 @@ class Qiyana extends Champion{
 	public Qiyana(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("qiyana.png");
+		name = "Qiyana";
 		origin = 0; trait = 4;
 		isRanged = false;
 		originalHP=1250; originalAD=150; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 100; mana = 70;
@@ -1571,6 +1619,7 @@ class Riven extends Champion{
 	public Riven(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("riven.png");
+		name = "Riven";
 		origin = 3; trait = 5; 
 		isRanged = false;
 		originalHP=1500; originalAD=70; originalAP=75; originalAS=1.5; originalArmor=10; originalMR=10; range = 100; mana = 80;
@@ -1590,6 +1639,7 @@ class Braum extends Champion{
 	public Braum(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("braum.png");
+		name = "Braum";
 		origin = 1; trait = 2;
 		isRanged = false;
 		originalHP=2000; originalAD=50; originalAP=75; originalAS=1; originalArmor=30; originalMR=30; range = 100; mana = 80;
@@ -1609,6 +1659,7 @@ class Darius extends Champion{
 	public Darius(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("darius.png");
+		name = "Darius";
 		origin = 3; trait = 2;
 		isRanged = false;
 		originalHP=1500; originalAD=50; originalAP=50; originalAS=1; originalArmor=15; originalMR=15; range = 100; mana = 80;
@@ -1628,6 +1679,7 @@ class Kassadin extends Champion{
 	public Kassadin(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("kassadin.png");
+		name = "Kassadin";
 		origin = 4; trait = 5;
 		isRanged = false;
 		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=20; range = 100; mana = 50;
@@ -1647,6 +1699,7 @@ class Sivir extends Champion{
 	public Sivir(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("sivir.png");
+		name = "Sivir";
 		origin = 0; trait = 1;
 		isRanged = true;
 		originalHP=1000; originalAD=70;originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 70;
@@ -1663,12 +1716,18 @@ class Sivir extends Champion{
 	}
 }
 class Jinx extends Champion{
+	
+	private Timer passive = new Timer(2000, this);
+	private ArrayList<Champion> assisted = new ArrayList<>();
+	private boolean passiveIsActive = false;
+	
 	public Jinx(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("jinx.png");
+		name = "Jinx";
 		origin = 5; trait = 1;
 		isRanged = true; usesAbilities = false;
-		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100;
+		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100000;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1680,17 +1739,87 @@ class Jinx extends Champion{
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
 	}
+	
+	public void reset(){
+		hp=originalHP; curHP = hp; ad=originalAD; ap=originalAP; armor =originalArmor; mr = originalMR; as = originalAS;
+		curHP = hp;
+		curMana = 0;
+		this.returnToOriginal();
+		isStunned = 0;
+		isHit = 0;
+		assisted.clear();
+		alive = true;
+	}
+	
+	public void usePassive(){
+		System.out.println("used passive");
+		passiveIsActive = true;
+		as *= 2;
+		passive.start();
+	}
+	
+	public void hitsAuto(Champion target){
+		int type = 1;
+		int targetArmor = target.getArmor();
+		int damage = 0;
+		damage = ad-ad*targetArmor/150;
+		target.takeDmg(damage, type);
+		assisted.add(target);
+	}
+	
+	
+	public void checkIfAssisted(Champion champ){
+		for (int i=0; i<assisted.size(); i++){
+			if (assisted.get(i).getName().equals(champ.getName())){
+				if (!passiveIsActive){
+					System.out.println(assisted.get(i).getName());
+					this.usePassive();
+				}
+				else{
+					assisted.remove(i);
+				}
+			}
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		else if (e.getSource()==passive){
+			passive.stop();
+			as = originalAS;
+			passiveIsActive = false;
+		}
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+		}
+	}
 }
 
 class Yasuo extends Champion{
 	
-	private Timer ult = new Timer(100, this);
+	private Timer ability = new Timer(100, this);
 	private int count;
 	private Champion target;
 	
 	public Yasuo(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("yasuo.png");
+		name = "Yasuo";
 		origin = 0; trait = 5; 
 		isRanged = false;
 		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=10; range = 100; mana = 70;
@@ -1717,7 +1846,7 @@ class Yasuo extends Champion{
 			else if (dX>100){ x = dX - 100; y = dY;}
 			else { x = dX + 100; y = dY;};
 			target.getStunned(2);
-			ult.start();
+			ability.start();
 		}
 	}
 	
@@ -1730,13 +1859,13 @@ class Yasuo extends Champion{
 			isStunned--;
 			stunned.stop();
 		}
-		else if (e.getSource()==ult){
+		else if (e.getSource()==ability){
 			if (count<=12){
 				if (count%3==0) this.hitsAuto(target);
 			}
 			else{
 				target.setPos(target.getX(), target.getY()+10);
-				if (count>20) ult.stop();
+				if (count>20) ability.stop();
 			}
 			count++;
 			curMana = 0;
@@ -1745,6 +1874,7 @@ class Yasuo extends Champion{
 			for (int i=0; i<nTimers; i++){
 				if (e.getSource()==timers.get(i)){
 					damageTaken.remove(i);
+					damageType.remove(i);
 					nTimers--;
 					timers.get(i).stop();
 					timers.remove(i);
@@ -1755,12 +1885,19 @@ class Yasuo extends Champion{
 }
 
 class Ashe extends Champion{
+	
+	private int velX, velY, aVel = 20, nArrows = 0, aX, aY;
+	private double arrowAngle;
+	private Timer ability = new Timer(120, this);
+	private ImageIcon arrow = new ImageIcon("asheArrow.png");
+	
 	public Ashe(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("ashe.png");
+		name = "Ashe";
 		origin = 1; trait = 1;
 		isRanged = true;
-		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100;
+		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 120;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1771,5 +1908,82 @@ class Ashe extends Champion{
 		}
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp; 
+	}
+	
+	public void useAbility(){
+		if (curMana>=mana){
+			aX = this.x+50; aY = this.y+50;
+			curMana = 0;
+			Champion target = board.findFurthest(this, isEnemy);
+			int dX = target.getX()+50-aX, dY = target.getY()+50-aY;
+			
+			arrowAngle = Math.atan2(dY, dX)*(180/Math.PI);
+			velX = (int)(aVel*(90-Math.abs(arrowAngle))/90); 
+			if (arrowAngle<=0) velY = Math.abs(velX)-aVel;
+			else velY = aVel-Math.abs(velX);
+			
+			ability.start();
+			nArrows++;
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+			if (e.getSource()==ability){
+				aX += velX;
+				aY += velY;
+				//if it goes out of the screen
+				if (aX-50>Board.w || aX+50<0 || aY-55>Board.h || aY+55<0){
+					nArrows--;
+					ability.stop();
+				}
+				Champion cur;
+				if (isEnemy){
+					for (int j=0; j<board.nBoardChamps; j++){
+						cur = board.boardChamps.get(j);
+						if (cur.contains(aX, aY) && cur.isAlive()){
+							cur.getStunned(2);
+							cur.takeDmg(3*ap, 2);
+							nArrows--;
+							ability.stop();
+						}
+					}
+				}else{
+					for (int j=0; j<board.enemyChamps.size(); j++){
+						cur = board.enemyChamps.get(j);
+						if (cur.contains(aX, aY) && cur.isAlive()){
+							cur.getStunned(2);
+							cur.takeDmg(3*ap, 2);
+							nArrows--;
+							ability.stop();
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public void drawAbility(Graphics2D g2){
+		if (nArrows>0){
+			g2.rotate(Math.toRadians(arrowAngle+135), aX, aY);
+			g2.drawImage(arrow.getImage(), aX, aY, null);
+		}
 	}
 }

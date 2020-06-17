@@ -462,6 +462,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		return (!inGame && !paused);
 	}
 	
+	public boolean isInGame(){
+		return inGame;
+	}
+	
 	public int[] getActiveTraits(){
 		return activeTraits;
 	}
@@ -1029,7 +1033,7 @@ class Champion implements ActionListener{
 	protected Rectangle hitBox;
 	
 	protected boolean alive = true;
-	private boolean blademaster, void1, glacial, hextech, demon;
+	protected boolean blademaster, void1, glacial, hextech, demon;
 	protected int isHit = 0, isStunned = 0, isDamaged = 0;
 	protected ArrayList<Integer> damageTaken = new ArrayList<>(), damageType = new ArrayList<>();
 	protected ArrayList<Timer> timers = new ArrayList<>();
@@ -1114,7 +1118,14 @@ class Champion implements ActionListener{
 	}
 	
 	public void takeDmg(int damage, int type){
+		if (type==1){
+			damage -= damage*armor/150;
+		}
+		else if (type==2){
+			damage -= damage*mr/100;
+		}
 		curHP-=damage;
+		
 		if (curHP<=0){
 			alive = false;
 		}
@@ -1129,9 +1140,7 @@ class Champion implements ActionListener{
 	
 	public void hitsAuto(Champion target){
 		int type = 1;
-		curMana+=10;
-		int targetArmor = target.getArmor();
-		int damage = 0;
+		if (usesAbilities) curMana+=10;
 		if (glacial){
 			if ((int)(Math.random()*4)==0){
 				System.out.println(target + "stunned");
@@ -1139,7 +1148,6 @@ class Champion implements ActionListener{
 			}
 		}
 		if (void1){
-			targetArmor = 0;
 			type = 3;
 		}
 		if (demon){
@@ -1150,8 +1158,7 @@ class Champion implements ActionListener{
 			}
 		}
 		
-		damage = ad-ad*targetArmor/150;
-		target.takeDmg(damage, type);
+		target.takeDmg(ad, type);
 		if (!isRanged) target.getHit();
 		
 		if (blademaster) {
@@ -1341,14 +1348,16 @@ class Champion implements ActionListener{
 	public void myDraw(Graphics g) {
     	g.drawImage(image.getImage(), x, y, null);
 		
-		g.setColor(new Color(10,10,10));
-		g.fillRect(x+15,y-12, 60, 11);
-		//hp bar
-		g.setColor(Color.GREEN);
-		g.fillRect(x+15, y-12, curHP*60/hp, 7);
-		//mana bar
-		g.setColor(Color.BLUE);
-		g.fillRect(x+15, y-5, curMana*60/mana, 4);
+		if (board.isInGame()){
+			g.setColor(new Color(10,10,10));
+			g.fillRect(x+15,y-12, 60, 11);
+			//hp bar
+			g.setColor(Color.GREEN);
+			g.fillRect(x+15, y-12, curHP*60/hp, 7);
+			//mana bar
+			g.setColor(Color.BLUE);
+			g.fillRect(x+15, y-5, curMana*60/mana, 4);
+		}
 		
 		if (isHit>0){
 			g.drawImage(slash.getImage(), x, y, null);
@@ -1676,13 +1685,14 @@ class Darius extends Champion{
 	}
 }
 class Kassadin extends Champion{
+	
 	public Kassadin(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("kassadin.png");
 		name = "Kassadin";
 		origin = 4; trait = 5;
-		isRanged = false;
-		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=20; range = 100; mana = 50;
+		isRanged = false; usesAbilities = false;
+		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=20; range = 100; mana = 100000;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1694,8 +1704,27 @@ class Kassadin extends Champion{
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
 	}
+	
+	public void hitsAuto(Champion target){
+		int type = 1;
+		if (void1) type = 3;
+		int targetArmor = target.getArmor();
+		//steals mana
+		target.setMana(target.getCurMana()-15);
+		int damage = 0;
+		damage = ad-ad*targetArmor/150;
+		target.takeDmg(damage, type);
+	}
 }
 class Sivir extends Champion{
+	
+	private int velX, velY, aVel = 20, nShurikens = 0, aX, aY, count = 0;
+	private double shurikenAngle;
+	private Timer ability = new Timer(60, this);
+	private ImageIcon shuriken = new ImageIcon("shuriken.png");
+	private Rectangle shurikenHitBox;
+	private ArrayList<Champion> gotHit = new ArrayList<>();
+	
 	public Sivir(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("sivir.png");
@@ -1713,6 +1742,146 @@ class Sivir extends Champion{
 		}
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
+	}
+	
+	public void useAbility(){
+		if (curMana>=mana){
+			gotHit.clear();
+			count = 0;
+			aX = this.x+42; aY = this.y+42;
+			shurikenHitBox = new Rectangle(aX, aY, 42, 42);
+			curMana = 0;
+			Champion target = board.findFurthest(this, isEnemy);
+			int dX = target.getX()+42-aX, dY = target.getY()+42-aY;
+			
+			shurikenAngle = Math.atan2(dY, dX)*(180/Math.PI);
+			velX = (int)(aVel*(90-Math.abs(shurikenAngle))/90); 
+			if (shurikenAngle<=0) velY = Math.abs(velX)-aVel;
+			else velY = aVel-Math.abs(velX);
+
+			ability.start();
+			nShurikens++;
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		else if (e.getSource()==ability){
+			if (count==25){
+				gotHit.clear();
+			}
+			if (count<25){
+				aX += velX;
+				aY += velY;
+				shurikenHitBox.setLocation(aX, aY);
+				Champion cur;
+				if (isEnemy){
+					for (int j=0; j<board.nBoardChamps; j++){
+						cur = board.boardChamps.get(j);
+						if (cur.getHitBox().intersects(shurikenHitBox) && cur.isAlive()){
+							boolean hit = false;
+							for (int i=0; i<gotHit.size(); i++){
+								if (gotHit.get(i)==cur){
+									hit = true;
+								}
+							}
+							if (!hit){
+								gotHit.add(cur);
+								cur.takeDmg(2*ap, 2);
+							}
+						}
+					}
+				}else{
+					for (int j=0; j<board.enemyChamps.size(); j++){
+						cur = board.enemyChamps.get(j);
+						if (cur.getHitBox().intersects(shurikenHitBox) && cur.isAlive()){
+							boolean hit = false;
+							for (int i=0; i<gotHit.size(); i++){
+								if (gotHit.get(i)==cur){
+									hit = true;
+								}
+							}
+							if (!hit){
+								gotHit.add(cur);
+								cur.takeDmg(2*ap, 2);
+							}
+						}
+					}
+				}
+				count++;
+			}
+			else{
+				aX -= velX;
+				aY -= velY;
+				shurikenHitBox.setLocation(aX, aY);
+				Champion cur;
+				if (isEnemy){
+					for (int j=0; j<board.nBoardChamps; j++){
+						cur = board.boardChamps.get(j);
+						if (cur.getHitBox().intersects(shurikenHitBox) && cur.isAlive()){
+							boolean hit = false;
+							for (int i=0; i<gotHit.size(); i++){
+								if (gotHit.get(i)==cur){
+									hit = true;
+								}
+							}
+							if (!hit){
+								gotHit.add(cur);
+								cur.takeDmg(2*ap, 2);
+							}
+						}
+					}
+				}else{
+					for (int j=0; j<board.enemyChamps.size(); j++){
+						cur = board.enemyChamps.get(j);
+						if (cur.getHitBox().intersects(shurikenHitBox) && cur.isAlive()){
+							boolean hit = false;
+							for (int i=0; i<gotHit.size(); i++){
+								if (gotHit.get(i)==cur){
+									hit = true;
+								}
+							}
+							if (!hit){
+								gotHit.add(cur);
+								cur.takeDmg(2*ap, 2);
+							}
+						}
+					}
+				}
+					
+				//comes back to sivir
+				if (this.getHitBox().intersects(shurikenHitBox)){
+					ability.stop();
+					nShurikens--;
+				}
+				count++;
+			}
+		}
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+		}
+	}
+	
+	public void drawAbility(Graphics2D g2){
+		if (nShurikens>0){
+			g2.rotate(Math.toRadians(45*count), aX+25, aY+25);
+			g2.drawImage(shuriken.getImage(), aX, aY, null);
+		}
 	}
 }
 class Jinx extends Champion{
@@ -1757,16 +1926,6 @@ class Jinx extends Champion{
 		as *= 2;
 		passive.start();
 	}
-	
-	public void hitsAuto(Champion target){
-		int type = 1;
-		int targetArmor = target.getArmor();
-		int damage = 0;
-		damage = ad-ad*targetArmor/150;
-		target.takeDmg(damage, type);
-		assisted.add(target);
-	}
-	
 	
 	public void checkIfAssisted(Champion champ){
 		for (int i=0; i<assisted.size(); i++){
@@ -1888,7 +2047,7 @@ class Ashe extends Champion{
 	
 	private int velX, velY, aVel = 20, nArrows = 0, aX, aY;
 	private double arrowAngle;
-	private Timer ability = new Timer(120, this);
+	private Timer ability = new Timer(60, this);
 	private ImageIcon arrow = new ImageIcon("asheArrow.png");
 	
 	public Ashe(int x, int y, int level, Board board){
@@ -1912,10 +2071,10 @@ class Ashe extends Champion{
 	
 	public void useAbility(){
 		if (curMana>=mana){
-			aX = this.x+50; aY = this.y+50;
+			aX = this.x+42; aY = this.y+42;
 			curMana = 0;
 			Champion target = board.findFurthest(this, isEnemy);
-			int dX = target.getX()+50-aX, dY = target.getY()+50-aY;
+			int dX = target.getX()+42-aX, dY = target.getY()+42-aY;
 			
 			arrowAngle = Math.atan2(dY, dX)*(180/Math.PI);
 			velX = (int)(aVel*(90-Math.abs(arrowAngle))/90); 
@@ -1982,7 +2141,7 @@ class Ashe extends Champion{
 	
 	public void drawAbility(Graphics2D g2){
 		if (nArrows>0){
-			g2.rotate(Math.toRadians(arrowAngle+135), aX, aY);
+			g2.rotate(Math.toRadians(arrowAngle+135), aX+25, aY+27.5);
 			g2.drawImage(arrow.getImage(), aX, aY, null);
 		}
 	}

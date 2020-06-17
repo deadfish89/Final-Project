@@ -38,14 +38,20 @@ class HUD extends JPanel implements ActionListener{
 	public HUD(Player player, Board board){
 		this.player = player;
 		this.board = board;
-		leftPanel2 = new LeftPanel2(player);
+		leftPanel2 = new LeftPanel2(player,board);
 		shop = new Shop(player, board, leftPanel2);
 		this.setBackground(Color.black);
 		this.setPreferredSize(new Dimension(1000,105));
-		this.setLayout(new BorderLayout());
-		this.add(shop, BorderLayout.EAST);
+		/*this.setLayout(new BorderLayout());
+		this.add(shop, BorderLayout.CENTER);
+		this.add(new RightPanel(),BorderLayout.EAST);
 		this.add(new LeftPanel(player, leftPanel2, shop), BorderLayout.WEST);
-		this.add(leftPanel2, BorderLayout.CENTER);
+		this.add(leftPanel2, BorderLayout.WEST);*/
+		this.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
+		this.add(new RightPanel(leftPanel2));
+		this.add(new LeftPanel(player, leftPanel2, shop));
+		this.add(leftPanel2);
+		this.add(shop);
 	}
 	
 	public void paintComponent(Graphics g){
@@ -72,7 +78,7 @@ class LeftPanel extends JPanel implements ActionListener{
 		this.leftPanel2 = leftPanel2;
 		this.setPreferredSize(new Dimension(185,105));
 		this.setLayout(new GridLayout(2,1));
-		this.setBackground(Color.black);
+		this.setBackground(Color.BLACK);
 		
 		refresh = new JButton(new ImageIcon("Refresh.png"));
 		level = new JButton(new ImageIcon("Level.png"));
@@ -108,17 +114,21 @@ class LeftPanel extends JPanel implements ActionListener{
 	}
 }
 
-class LeftPanel2 extends JPanel{
+class LeftPanel2 extends JPanel implements ActionListener{
 	
+	private Timer timer;
 	private JButton refresh, level;
 	private JLabel xpLabel, goldLabel, lvlLabel;
 	private Player player;
-	
-	public LeftPanel2(Player player){
+	private Board board;
+	public LeftPanel2(Player player, Board board){
 		this.player = player;
-		this.setPreferredSize(new Dimension(115,105));
+		this.board = board;
+		this.setPreferredSize(new Dimension(100,105));
 		this.setLayout(new GridLayout(3,1));
-		this.setBackground(Color.white);
+		this.setBackground(Color.WHITE);
+		timer = new Timer(100,this);
+		timer.start();
 		display();
 	}
 	
@@ -127,7 +137,7 @@ class LeftPanel2 extends JPanel{
 			xpLabel = new JLabel("XP: MAX", JLabel.CENTER);
 		}
 		else{
-			xpLabel = new JLabel("XP: " + player.getXP()+"/"+(player.getLevelUp()), JLabel.CENTER);
+			xpLabel = new JLabel("XP: " + player.getXP()+"/"+player.getLevelUp(), JLabel.CENTER);
 		}
 		goldLabel = new JLabel("Gold: " + player.getGold(), JLabel.CENTER);
 		lvlLabel = new JLabel("Level: " + player.getLevel(), JLabel.CENTER);
@@ -171,6 +181,14 @@ class LeftPanel2 extends JPanel{
 	public static void flashWhite(){
 		
 	}
+	public void actionPerformed(ActionEvent e){
+		if(e.getSource()==timer){
+			if(board.needUpdate){
+				redisplay();	
+				board.needUpdate = true;	
+			}
+		}
+	}
 }
 
 class Shop extends JPanel implements ActionListener{
@@ -187,7 +205,7 @@ class Shop extends JPanel implements ActionListener{
 	private ImageIcon[] items = new ImageIcon[20];
 	
 	public Shop(Player player, Board board, LeftPanel2 leftPanel2){
-		price = new int[] {5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1};
+		price = new int[] {5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1,1};
 		champPool = new ChampionPool(player);
 		inShop = new int[5];
 		shopItems = new JButton[5];
@@ -195,7 +213,7 @@ class Shop extends JPanel implements ActionListener{
 		this.player = player;
 		this.board = board;
 		this.leftPanel2 = leftPanel2;
-		this.setPreferredSize(new Dimension(700,105));
+		this.setPreferredSize(new Dimension(610,105));
 		this.setLayout(new GridLayout(1,5));
 		this.setBackground(new Color(119,136,153));
 		
@@ -220,7 +238,6 @@ class Shop extends JPanel implements ActionListener{
 		items[16] = new ImageIcon("sivir.png");
 		items[17] = new ImageIcon("jinx.png");
 		items[18] = new ImageIcon("yasuo.png");
-		items[19] = new ImageIcon("ashe.png");
 		
 		loadImages();
 		
@@ -260,9 +277,9 @@ class Shop extends JPanel implements ActionListener{
 			}
 		}
 		for (int i=0; i<5; i++){
-			if (e.getSource()==shopItems[i] && player.getGold()>=price[i]){
+			if (e.getSource()==shopItems[i] && player.getGold()>=price[inShop[i]]){
 				if (board.summonChamp(inShop[i], 1)){
-					player.spendGold(price[i]);
+					player.spendGold(price[inShop[i]]);
 					leftPanel2.redisplay();
 					shopItems[i].setVisible(false);
 				}
@@ -270,4 +287,15 @@ class Shop extends JPanel implements ActionListener{
 		}
 	}
 	
+}
+
+class RightPanel extends JPanel{
+	private JLabel sell;
+	private LeftPanel2 leftPanel2;
+	public RightPanel(LeftPanel2 leftPanel2){
+		this.leftPanel2 = leftPanel2;
+		this.setPreferredSize(new Dimension(105,105));
+		sell = new JLabel(new ImageIcon("sell.png"));
+		this.add(sell);
+	}
 }

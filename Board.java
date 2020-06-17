@@ -12,6 +12,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private Timer timer, preRound, pause;
 	private int nSeconds = 30;
 	private boolean win = false, lose = false, inGame = false, paused = false, needReset = false;
+	public boolean needUpdate = false;
 	private ImageIcon victory = new ImageIcon("victory.png"), defeat = new ImageIcon("defeat.png");
 	private final int time = 16;
 	private ImageIcon bg, b, bg2;
@@ -465,7 +466,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public boolean isInGame(){
 		return inGame;
 	}
-	
+
 	public int[] getActiveTraits(){
 		return activeTraits;
 	}
@@ -482,6 +483,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		return origins;
 	}
 	
+
 	private void rangedAttack(Champion attacker, Champion target){
 		autos.add(new Auto(attacker, target));
 	}
@@ -545,7 +547,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		
 		Font font;
 		g.setColor(Color.BLACK);
-		
+
 		//background
 		g.drawImage(bg.getImage(), 0, -1, w, h-83, null);
 		
@@ -809,7 +811,6 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		boolean onTile = false;
 		boolean boardFull = false;
 		boolean placed = false;
-
 		//champion released on board
 		for (int i=0; i<10; i++){
 			for (int j=0; j<3; j++){
@@ -898,7 +899,26 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					}
 				}
 		}
-		
+		//sell champions if they are released on sell button
+		if(0<mX && mX<105 && 595<mY && mY<700){
+			player.gainGold(pickedChamp.getCost());
+			System.out.println(pickedChamp.getCost());
+			for(int i = 0;i < 10;i++){
+				if(benchField[i].contains(originalX,originalY)){
+					benchChamps.remove(pickedChamp);
+				}
+				for(int j = 0;j < 3;j++){
+					if(field[i][j].contains(originalX,originalY)){
+						this.removeFromBoard(pickedChamp);
+						this.refreshTraits();
+					}
+				}
+			}
+			pickedChamp.setPos(0,700);
+			needUpdate=true;
+			System.out.println(needUpdate);
+			pickedChamp=null;
+		}
 		//if champion isn't released on any tile
 		if (pickedChamp!=null && !onTile){
 				pickedChamp.setPos(originalX, originalY);
@@ -970,7 +990,7 @@ class Tile{
 	
 	public void myDraw(Graphics g) {
 		g.setColor(Color.BLACK);
-    	g.drawRect(x, y, 85, 85);
+    		g.drawRect(x, y, 85, 85);
     }
 }
 
@@ -1024,7 +1044,7 @@ class Champion implements ActionListener{
 	protected int x, y, originalX, originalY;
 	protected ImageIcon image;
 	protected String name;
-	protected int hp=0, lvl=0, ad=0, ap=0, armor = 0, mr = 0, curHP = 0, mana = 0, curMana = 0, range = 0;
+	protected int hp=0, lvl=0, ad=0, ap=0, armor = 0, mr = 0, curHP = 0, mana = 0, curMana = 0, range = 0, cost = 0;
 	protected double as = 0, originalAS;
 	protected int originalHP, originalAD, originalMR, originalAP, originalArmor;
 	protected int trait = 0, origin = 0, rarity = -1;
@@ -1125,7 +1145,6 @@ class Champion implements ActionListener{
 			damage -= damage*mr/100;
 		}
 		curHP-=damage;
-		
 		if (curHP<=0){
 			alive = false;
 		}
@@ -1157,7 +1176,6 @@ class Champion implements ActionListener{
 			this.setMana(curMana+20);
 			}
 		}
-		
 		target.takeDmg(ad, type);
 		if (!isRanged) target.getHit();
 		
@@ -1174,11 +1192,9 @@ class Champion implements ActionListener{
 			curMana = 0;
 		}
 	}
-	
 	public void usePassive(){
-		
+
 	}
-	
 	public void move(Champion target){
 		int dX = target.getX()+42-(x+42);
 		int dY = target.getY()+42-(y+42);
@@ -1211,7 +1227,7 @@ class Champion implements ActionListener{
 	public void checkIfAssisted(Champion champ){
 		//is overridden by jinx
 	}
-	
+
 	/* traits and origins */
 	public int getTrait(){
 		return trait;
@@ -1275,11 +1291,10 @@ class Champion implements ActionListener{
 	}
 	
 	/* get methods */
-	
 	public String getName(){
 		return name;
 	}
-	
+
 	public Rectangle getHitBox(){
 		hitBox.setBounds(x, y, 85, 85);
 		return hitBox;
@@ -1339,6 +1354,10 @@ class Champion implements ActionListener{
 		return y;
 	}
 	
+	public int getCost(){
+		return cost;
+	}
+
 	//if mouse is hovering
 	public boolean contains(int mX, int mY) {
     	return (mX>=x && mX<x+85 && mY>=y && mY<y+85);
@@ -1372,9 +1391,8 @@ class Champion implements ActionListener{
 			}
 		}
     }
-	
 	public void drawAbility(Graphics2D g){
-		
+
 	}
 }
 
@@ -1386,7 +1404,7 @@ class Annie extends Champion{
 		name = "Annie";
 		origin = 0; trait = 0;
 		isRanged = true;
-		originalHP=1450; originalAD=100; originalAP=100; originalAS=1; originalArmor=10; originalMR=10; range = 250; mana = 150;
+		originalHP=1450; originalAD=100; originalAP=100; originalAS=1; originalArmor=10; originalMR=10; range = 250; mana = 150;cost = 5;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1407,7 +1425,7 @@ class Wukong extends Champion{
 		name = "Wukong";
 		origin = 6; trait = 3;
 		isRanged = false;
-		originalHP=2000; originalAD=150; originalAP=100; originalAS=1; originalArmor=30; originalMR=30; range = 100; mana = 150;
+		originalHP=2000; originalAD=150; originalAP=100; originalAS=1; originalArmor=30; originalMR=30; range = 100; mana = 150;cost = 5;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1428,7 +1446,7 @@ class Chogath extends Champion{
 		name = "Cho'gath";
 		origin = 4; trait = 3;
 		isRanged = false;
-		originalHP=2500; originalAD=100; originalAP=100; originalAS=1; originalArmor=30; originalMR = 30; range = 100; mana = 150;
+		originalHP=2500; originalAD=100; originalAP=100; originalAS=1; originalArmor=30; originalMR = 30; range = 100; mana = 150;cost = 5;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1449,7 +1467,7 @@ class Velkoz extends Champion{
 		name = "Vel'koz";
 		origin = 4; trait = 0;
 		isRanged = true;
-		originalHP=1500; originalAD=100; originalAP=100; originalAS=1; originalArmor=10; originalMR=10; range = 300; mana = 150;
+		originalHP=1500; originalAD=100; originalAP=100; originalAS=1; originalArmor=10; originalMR=10; range = 300; mana = 150;cost = 5;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1470,7 +1488,7 @@ class Brand extends Champion{
 		name = "Brand";
 		origin = 0; trait = 0;
 		isRanged = true;
-		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR = 10; range = 300; mana = 120;
+		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR = 10; range = 300; mana = 120;cost = 3;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1490,7 +1508,7 @@ class Lux extends Champion{
 		name = "Lux";
 		origin = 0; trait = 0;
 		isRanged = true;
-		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR = 10; range = 300;  mana = 120;
+		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR = 10; range = 300;  mana = 120;cost = 3;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1510,7 +1528,7 @@ class Nautilus extends Champion{
 		name = "Nautilus";
 		origin = 0; trait = 2;
 		isRanged = false;
-		originalHP=2000; originalAD=50; originalAP=75; originalAS=1; originalArmor=30; originalMR=30; range = 100;  mana = 120;
+		originalHP=2000; originalAD=50; originalAP=75; originalAS=1; originalArmor=30; originalMR=30; range = 100;  mana = 120;cost = 3;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1530,7 +1548,7 @@ class Syndra extends Champion{
 		name = "Syndra";
 		origin = 2; trait = 0;
 		isRanged = true;
-		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 300;  mana = 100;
+		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 300;  mana = 100;cost = 3;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1550,7 +1568,7 @@ class Varus extends Champion{
 		name = "Varus";
 		origin = 2; trait = 1;
 		isRanged = true;
-		originalHP=1250; originalAD=100; originalAP=75; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100;
+		originalHP=1250; originalAD=100; originalAP=75; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100;cost = 3;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1571,7 +1589,7 @@ class Veigar extends Champion{
 		name = "Veigar";
 		origin = 2; trait = 0;
 		isRanged = true;
-		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 300; mana = 100;
+		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 300; mana = 100;cost = 3;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1591,7 +1609,7 @@ class Vi extends Champion{
 		name = "Vi";
 		origin = 5; trait = 3;
 		isRanged = false;
-		originalHP=1500; originalAD=70; originalAP=75;originalAS=1; originalArmor=20; originalMR=20; range = 100; mana = 120;
+		originalHP=1500; originalAD=70; originalAP=75;originalAS=1; originalArmor=20; originalMR=20; range = 100; mana = 120;cost = 3;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1611,7 +1629,7 @@ class Qiyana extends Champion{
 		name = "Qiyana";
 		origin = 0; trait = 4;
 		isRanged = false;
-		originalHP=1250; originalAD=150; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 100; mana = 70;
+		originalHP=1250; originalAD=150; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 100; mana = 70;cost = 3;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1631,7 +1649,7 @@ class Riven extends Champion{
 		name = "Riven";
 		origin = 3; trait = 5; 
 		isRanged = false;
-		originalHP=1500; originalAD=70; originalAP=75; originalAS=1.5; originalArmor=10; originalMR=10; range = 100; mana = 80;
+		originalHP=1500; originalAD=70; originalAP=75; originalAS=1.5; originalArmor=10; originalMR=10; range = 100; mana = 80;cost = 1;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1651,7 +1669,7 @@ class Braum extends Champion{
 		name = "Braum";
 		origin = 1; trait = 2;
 		isRanged = false;
-		originalHP=2000; originalAD=50; originalAP=75; originalAS=1; originalArmor=30; originalMR=30; range = 100; mana = 80;
+		originalHP=2000; originalAD=50; originalAP=75; originalAS=1; originalArmor=30; originalMR=30; range = 100; mana = 80;cost = 1;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1671,7 +1689,7 @@ class Darius extends Champion{
 		name = "Darius";
 		origin = 3; trait = 2;
 		isRanged = false;
-		originalHP=1500; originalAD=50; originalAP=50; originalAS=1; originalArmor=15; originalMR=15; range = 100; mana = 80;
+		originalHP=1500; originalAD=50; originalAP=50; originalAS=1; originalArmor=15; originalMR=15; range = 100; mana = 80;cost = 1;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1692,7 +1710,7 @@ class Kassadin extends Champion{
 		name = "Kassadin";
 		origin = 4; trait = 5;
 		isRanged = false; usesAbilities = false;
-		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=20; range = 100; mana = 100000;
+		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=20; range = 100; mana = 100000;cost = 1;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1731,7 +1749,7 @@ class Sivir extends Champion{
 		name = "Sivir";
 		origin = 0; trait = 1;
 		isRanged = true;
-		originalHP=1000; originalAD=70;originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 70;
+		originalHP=1000; originalAD=70;originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 70;cost = 1;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1896,7 +1914,7 @@ class Jinx extends Champion{
 		name = "Jinx";
 		origin = 5; trait = 1;
 		isRanged = true; usesAbilities = false;
-		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100000;
+		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100000;cost = 1;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1981,7 +1999,7 @@ class Yasuo extends Champion{
 		name = "Yasuo";
 		origin = 0; trait = 5; 
 		isRanged = false;
-		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=10; range = 100; mana = 70;
+		originalHP=1250; originalAD=50; originalAP=50; originalAS=1; originalArmor=10; originalMR=10; range = 100; mana = 70;cost = 1;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -2056,7 +2074,7 @@ class Ashe extends Champion{
 		name = "Ashe";
 		origin = 1; trait = 1;
 		isRanged = true;
-		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 120;
+		originalHP=1000; originalAD=70; originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 120;cost = 1;
 		for (int i=1; i<lvl; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;

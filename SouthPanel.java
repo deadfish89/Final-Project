@@ -241,6 +241,9 @@ class Shop extends JPanel implements ActionListener{
 			shopItems[i] = new JButton(items[inShop[i]]);
 			this.add(shopItems[i]);
 			shopItems[i].addActionListener(this);
+			if (inShop[i]<=3) shopItems[i].setBackground(new Color(221,160,221));
+			else if (inShop[i]<=11) shopItems[i].setBackground(new Color(127,255,0));
+			else shopItems[i].setBackground(new Color(248,248,255));
 		}
 	}
 	

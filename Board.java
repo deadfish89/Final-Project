@@ -9,7 +9,7 @@ import java.awt.geom.RoundRectangle2D;
 
 public class Board extends JPanel implements ActionListener, MouseListener, MouseMotionListener{
 	
-	private Timer timer, preRound, pause;
+	private Timer timer, preRound, pause, hoverTimer = new Timer(500, this);
 	private int nSeconds = 30;
 	private boolean win = false, lose = false, inGame = false, paused = false, needReset = false;
 	public boolean needUpdate = false;
@@ -31,7 +31,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private Tile[][] enemyField = new Tile[10][3];
 	private Tile[] benchField = new Tile[10];
 	private Champion[] bench = new Champion[10];
-	private Champion pickedChamp = null;
+	private Champion pickedChamp = null, hoverChamp = null;
 	private ArrayList<Champion> champs = new ArrayList<Champion>();
 	private ArrayList<Champion> benchChamps = new ArrayList<Champion>();
 	public static int w, h;
@@ -840,6 +840,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			}
 			else nSeconds--;
 		}
+		//in between rounds
 		else if (e.getSource()==pause){
 			if (nSeconds==0){
 				//preround starts again
@@ -852,6 +853,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				preRound.start();
 			}
 			else nSeconds--;
+		}
+		else if (e.getSource()==hoverTimer){
+			hoverChamp.displayStats(true);
+			System.out.println("display stats " + hoverChamp);
 		}
 		repaint();
 	}
@@ -1053,7 +1058,41 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		repaint();
 	}
 	
-	public void mouseMoved(MouseEvent arg0) {}
+	public void mouseMoved(MouseEvent e) {
+		int mX = e.getX(), mY = e.getY();
+		
+		//if mouse moves, stop the timer
+		if (hoverTimer.isRunning()){
+			hoverTimer.stop();
+			hoverChamp.displayStats(false);
+		}
+		
+		//if mouse hovers a player champion on the board
+		for (int i=0; i<nBoardChamps; i++){
+			Champion cur = boardChamps.get(i);
+			if (cur.contains(mX, mY)){
+				hoverTimer.start();
+				hoverChamp = cur;
+			}
+		}
+		//if mouse hovers an enemy champion on the board
+		for (int i=0; i<enemyChamps.size(); i++){
+			Champion cur = enemyChamps.get(i);
+			if (cur.contains(mX, mY)){
+				hoverTimer.start();
+				hoverChamp = cur;
+			}
+		}
+		//if mouse hovers a bench champion 
+		for (int i=0; i<benchChamps.size(); i++){
+			Champion cur = benchChamps.get(i);
+			if (cur.contains(mX, mY)){
+				hoverTimer.start();
+				hoverChamp = cur;
+			}
+		}
+		
+	}
 	
 }
 
@@ -1149,11 +1188,11 @@ class Champion implements ActionListener{
 	protected int x, y, originalX, originalY;
 	protected ImageIcon image, star = new ImageIcon("star2.png");
 	protected String name;
-	protected int hp=0, level=0, ad=0, ap=0, armor = 0, mr = 0, curHP = 0, mana = 0, curMana = 0, range = 0, cost = 0;
+	protected int hp=0, level=0, ad=0, ap=0, armor = 0, mr = 0, curHP = 0, mana = 0, curMana = 0, range = 0, cost = 0, originalHP, originalAD, originalMR, originalAP, originalArmor;
 	protected double as = 0, originalAS;
-	protected int originalHP, originalAD, originalMR, originalAP, originalArmor;
+
 	protected int trait = 0, origin = 0, rarity = -1;
-	protected boolean isRanged, usesAbilities = true, isEnemy = false;
+	protected boolean isRanged, usesAbilities = true, isEnemy = false, displayStats = false;
 	protected int vel = 5;
 	protected Rectangle hitBox;
 	
@@ -1523,6 +1562,11 @@ class Champion implements ActionListener{
 	public int getLevel(){
 		return level;
 	}
+	
+	public void displayStats(boolean display){
+		displayStats = display;
+	}
+	
 	//if mouse is hovering
 	public boolean contains(int mX, int mY) {
     	return (mX>=x && mX<x+85 && mY>=y && mY<y+85);
@@ -1558,6 +1602,11 @@ class Champion implements ActionListener{
 				else g.setColor(Color.WHITE);
 				g.drawString(damageTaken.get(i)+"", x, y-20*i-10);
 			}
+		}
+		
+		//if mouse is hovers champion for more than a second
+		if (displayStats){
+			
 		}
     }
 	

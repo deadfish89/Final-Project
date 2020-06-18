@@ -5,18 +5,13 @@ HI COPY EVERYTHING BC I ADDED ASHE
 Fighting
 -abilities** find champion classes at the bottom of board.java
 -make champions not overlap each other when fighting (like minion block)
--make better hitboxes
 
 Display (i got this ..i think)
 -display champion stats when hovering 
--mana bar 
--hp bar 
--
+
 Game
--are we gonna make AI that play as well or artificial levels?
 oh true good idea - I think we should make levels with semi-random ai teams(like pick from a small list)
--sell button(finished)
--2 and 3 star champions
+-2 and 3 star champions (wanna do this or nah bc i will when i get bored of league)
 
 Menu
 Improve instructions

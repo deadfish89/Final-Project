@@ -4,14 +4,10 @@ HI COPY EVERYTHING BC I ADDED ASHE
 
 Fighting
 -abilities** find champion classes at the bottom of board.java
--make champions not overlap each other when fighting (like minion block)
-
-Display (i got this ..i think)
--display champion stats when hovering 
+-make champions not overlap each other when fighting (like minion block) - maybe this is too hard
 
 Game
 oh true good idea - I think we should make levels with semi-random ai teams(like pick from a small list)
--2 and 3 star champions (done but no visuals yet)
 
 Menu
 Improve instructions

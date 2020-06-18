@@ -54,6 +54,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		for (int i=0; i<enemyChamps.size(); i++){
 			enemyBoard[0][i]=enemyChamps.get(i);
 			enemyChamps.get(i).isEnemyChamp();
+			enemyChamps.get(i).isOnBoard(true);
 		}
 		this.refreshTraits();
 
@@ -194,12 +195,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public void addToBoard(Champion champ){
 		if (nBoardChamps<player.getLevel()){
 			boardChamps.add(champ);
+			pickedChamp.isOnBoard(true);
 			nBoardChamps++;
 		}
 	}
 	
 	public void removeFromBoard(Champion champ){
 		boardChamps.remove(champ);
+		pickedChamp.isOnBoard(false);
 		nBoardChamps--;
 	}
 	
@@ -823,6 +826,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								//if board is not full
 								if (nBoardChamps<player.getLevel() && !inGame && !paused){
 									this.addToBoard(pickedChamp);
+									pickedChamp.isOnBoard(true);
 									benchChamps.remove(pickedChamp);
 									this.refreshTraits();
 								}else {
@@ -1052,7 +1056,7 @@ class Champion implements ActionListener{
 	protected int vel = 5;
 	protected Rectangle hitBox;
 	
-	protected boolean alive = true;
+	protected boolean alive = true, onBoard = false;
 	protected boolean blademaster, void1, glacial, hextech, demon;
 	protected int isHit = 0, isStunned = 0, isDamaged = 0;
 	protected ArrayList<Integer> damageTaken = new ArrayList<>(), damageType = new ArrayList<>();
@@ -1094,6 +1098,10 @@ class Champion implements ActionListener{
 	
 	public void isEnemyChamp(){
 		isEnemy = true;
+	}
+	
+	public void isOnBoard(boolean onBoard){
+		this.onBoard = onBoard;
 	}
 	
 	public void reset(){
@@ -1155,6 +1163,11 @@ class Champion implements ActionListener{
 		timers.add(new Timer(500, this));
 		timers.get(nTimers).start();
 		nTimers++;
+	}
+	
+	public void heal(int amount){
+		curHP += amount;
+		if (curHP>hp) curHP = hp;
 	}
 	
 	public void hitsAuto(Champion target){
@@ -1284,8 +1297,11 @@ class Champion implements ActionListener{
 	}
 	
 	public void setMana(int mana){
-		if (mana<0) mana = 0;
-		else if (mana<=this.mana){
+		if (mana<0) curMana = 0;
+		else if (mana>=this.mana){
+			curMana = this.mana;
+		}
+		else{
 			curMana = mana;
 		}
 	}
@@ -1367,7 +1383,7 @@ class Champion implements ActionListener{
 	public void myDraw(Graphics g) {
     	g.drawImage(image.getImage(), x, y, null);
 		
-		if (board.isInGame()){
+		if (board.isInGame() && onBoard){
 			g.setColor(new Color(10,10,10));
 			g.fillRect(x+15,y-12, 60, 11);
 			//hp bar
@@ -1391,9 +1407,12 @@ class Champion implements ActionListener{
 			}
 		}
     }
+	
+	//is overridden
 	public void drawAbility(Graphics2D g){
 
 	}
+	
 }
 
 class Annie extends Champion{
@@ -1683,6 +1702,11 @@ class Braum extends Champion{
 	}
 }
 class Darius extends Champion{
+	
+	private Timer ability = new Timer (500, this);
+	private int count = 0, cX, cY;
+	private final int radius = 115/2;
+	
 	public Darius(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("darius.png");
@@ -1701,7 +1725,90 @@ class Darius extends Champion{
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
 	}
+	
+	public void useAbility(){
+		if (curMana>=mana){
+			cX = x+42; cY = y+42;
+			curMana = 0;
+			ability.start();
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+			if (e.getSource()==ability){
+				cX = x+42; cY = y+42;
+				count++;
+				if (count==2){
+					if (isEnemy){
+						for (int i=0; i<board.nBoardChamps; i++){
+							Champion cur = board.boardChamps.get(i);
+							if (cur.isAlive()){
+								int curX = cur.getX(), curY = cur.getY();
+								if (curX<cX && cX-curX<=85+radius) curX += cX-curX;
+								if (curY<cY && cY-curY<=85+radius) curY += cY-curY;
+								if (Math.sqrt(Math.pow(curX-cX, 2) + Math.pow(curY-cY, 2)) <= radius){
+									cur.takeDmg(ap*3, 2);
+									this.heal((int)((hp-curHP)*0.3));
+								}
+							}
+						}
+					}
+					else{
+						for (int i=0; i<board.enemyChamps.size(); i++){
+							Champion cur = board.enemyChamps.get(i);
+							if (cur.isAlive()){
+								int curX = cur.getX(), curY = cur.getY();
+								if (curX<cX && cX-curX<=85+radius) curX += cX-curX;
+								if (curY<cY && cY-curY<=85+radius) curY += cY-curY;
+
+								if (Math.sqrt(Math.pow(curX-cX, 2) + Math.pow(curY-cY, 2)) <= radius){
+									cur.takeDmg(ap*3, 2);
+									this.heal((int)((hp-curHP)*0.3));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public void drawAbility(Graphics2D g2){
+		if (count>0){
+			g2.setColor(new Color(10, 10, 10));
+			g2.drawOval(x-30, y-30, 145, 145);
+			g2.drawOval(x, y, 85, 85);
+		}
+		if (count==2){
+			g2.setStroke(new BasicStroke(30));
+			g2.setColor(new Color(220,20,60, 200));
+			g2.drawOval(x-15, y-15, 115, 115);
+		}
+		if (count>=3){
+			count = 0;
+			ability.stop();
+		}
+	}
 }
+
 class Kassadin extends Champion{
 	
 	public Kassadin(int x, int y, int level, Board board){

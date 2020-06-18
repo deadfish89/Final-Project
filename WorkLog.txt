@@ -1,0 +1,46 @@
+June 1:
+Eric started project on github
+
+June 2: 
+Eric started Menu and TFT class
+
+June 3:
+Bryan created SouthPanel, Player class to display board
+Eric added images of champions
+
+June 4:
+Eric made menu and instructions work
+
+June 5:
+Eric brainstormed all champion traits, origins, and champion abilities
+
+June 6:
+Bryan created ChampionPool, shop, made champion drag and drop
+
+June 7:
+
+June 8:
+Bryan started traits/origins, made enemy champions, bulletproofed drag and dropping champions
+
+June 12: 
+Bryan made a timer, made champions move and attack each other
+Eric worked on menu, changed xp, fixed bench bug
+
+June 13:
+Bryan and Eric resized game to fit in 1350x700
+Bryan added EastPanel and displayed traits/origins
+
+June 14:
+Bryan added damage indicators, fixed traits/origins
+Eric finished xp 
+
+June 16:
+Eric resized images, organized github
+Bryan added hp and mana bars, finish trait/origin display
+
+June 17: 
+Bryan made Yasuo, Sivir, Darius ability, fixed minor bugs
+Eric made selling champions and improved shop
+
+
+

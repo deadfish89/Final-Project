@@ -87,13 +87,16 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		preRound.start();
 	}
 	
+	//reset board for a new a new round
 	private void newRound(){
 		needReset = true;
 		for (int i=0; i<nBoardChamps; i++){
 			boardChamps.get(i).reset();
 		}
+		//player gets gains gold as xp 
 		player.gainGold(5+player.getGold()/10);
 		player.gainXP(2);
+		
 		autos.clear();
 		refreshTraits();
 	}
@@ -106,6 +109,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		needReset = false;
 	}
 	
+	//create a new higher leveled champion after combining 3
 	public boolean summonChamp(int champ, int level){
 		int x = 0, y = 0, index = 0;
 		if (benchChamps.size()<10){
@@ -133,7 +137,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		}
 		return false;
 	}
-
+	
+	//check if there are champions to combine
 	public boolean checkLevel(Champion champ){
 		int numEqual = 0;
 		for(Champion champion:champs){
@@ -141,6 +146,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				numEqual++;
 			}
 		}
+		//if there are 3 of the same champions, remove them 
 		if(numEqual == 2){
 			for(int i = 0;i < 10;i++){
 				if(bench[i]!=null){
@@ -168,6 +174,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		return false;
 	}
 
+	//create a new champion 
 	public Champion summon(int champ,int x,int y,int level){
 		Champion temp = null;
 		switch (champ){
@@ -234,6 +241,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		}
 		return temp;
 	}
+	
+	//when champion comes from bench to board
 	public void addToBoard(Champion champ){
 		if (nBoardChamps<player.getLevel()){
 			boardChamps.add(champ);
@@ -242,12 +251,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		}
 	}
 	
+	//when champion goes from board to bench
 	public void removeFromBoard(Champion champ){
 		boardChamps.remove(champ);
 		champ.isOnBoard(false);
 		nBoardChamps--;
 	}
 	
+	//finds all active traits on both the player and the enemy's board
 	public void refreshTraits(){
 		Arrays.fill(traits, 0);
 		Arrays.fill(origins, 0);
@@ -260,22 +271,26 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			boolean isDuplicate = false;
 			Champion cur = boardChamps.get(i);
 			
+			//preventing duplicates
 			for (int j=0; j<visited.size(); j++){
 				if (cur.getClass().equals(visited.get(j).getClass()))
 					isDuplicate = true;
 			}
 			
+			//counting traits/origins for unique champions
 			if (!isDuplicate){
 				traits[cur.getTrait()]++;
 				origins[cur.getOrigin()]++;
 			}
 			visited.add(cur);
 		}
+		
 		for (int i=0; i<nBoardChamps; i++){
 			Champion cur = boardChamps.get(i);
 			cur.reset();
 			int trait = cur.getTrait();
 			int origin = cur.getOrigin();
+			//activate traits
 			switch (trait){
 				case 0:
 					if (traits[trait]==6){
@@ -330,6 +345,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					break;
 			}
 			
+			//activate origins
 			switch(origin){
 				case 0:
 					if (origins[origin]==7){
@@ -394,11 +410,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				boolean isDuplicate = false;
 				Champion cur = enemyChamps.get(i);
 				
+				//preventing duplicates
 				for (int j=0; j<visited.size(); j++){
 					if (cur.getClass().equals(visited.get(j).getClass()))
 						isDuplicate = true;
 				}
 				
+				//counting traits/origins of unique champions
 				if (!isDuplicate){
 					enemyTraits[cur.getTrait()]++;
 					enemyOrigins[cur.getOrigin()]++;
@@ -410,6 +428,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			cur.reset();
 			int trait = cur.getTrait();
 			int origin = cur.getOrigin();
+			//activating traits
 			switch (trait){
 				case 0:
 					if (enemyTraits[trait]==6){
@@ -454,6 +473,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					break;
 			}
 			
+			//activating origins
 			switch(origin){
 				case 0:
 					if (enemyOrigins[origin]==7){
@@ -528,11 +548,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		return origins;
 	}
 	
-
 	private void rangedAttack(Champion attacker, Champion target){
 		autos.add(new Auto(attacker, target));
 	}
 
+	//find closeset target for player attacker
 	public Champion findTarget(Champion attacker){
 		double dis = 10000;
 		Champion target = null;
@@ -547,6 +567,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		return target;
 	}
 	
+	//find closest target for enemy attacker
 	public Champion enemyFindTarget(Champion attacker){
 		double dis = 10000;
 		Champion target = null;
@@ -561,13 +582,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		return target;
 	}
 	
+	//find the furthest opposing champion on the board
 	public Champion findFurthest(Champion attacker, boolean isEnemy){
 		double dis = -1;
 		Champion target = null;
 		if (isEnemy){
 			for (int i=0; i<nBoardChamps; i++){
 				Champion cur = boardChamps.get(i);
-				double curDis = Math.sqrt(Math.pow(attacker.getX()-cur.getX(), 2) + Math.pow(attacker.getY()-cur.getY(), 2));
+				double curDis = Math.sqrt(Math.pow(attacker.getX()-cur.getX(), 2) + Math.pow(attacker.getY()-cur.getY(), 2)); //distance formula
 				if (cur.isAlive() && curDis > dis){
 					dis = curDis;
 					target = cur;
@@ -576,7 +598,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		}else {
 			for (int i=0; i<enemyChamps.size(); i++){
 				Champion cur = enemyChamps.get(i);
-				double curDis = Math.sqrt(Math.pow(attacker.getX()-cur.getX(), 2) + Math.pow(attacker.getY()-cur.getY(), 2));
+				double curDis = Math.sqrt(Math.pow(attacker.getX()-cur.getX(), 2) + Math.pow(attacker.getY()-cur.getY(), 2)); //distance formula
 				if (cur.isAlive() && curDis > dis){
 					dis = curDis;
 					target = cur;
@@ -607,17 +629,22 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		//champions on the board
 		for (int i=0; i<10; i++){
 			for (int j=0; j<3; j++){
+				//if there is a champion and it's alive 
 				if (board[i][j]!=null && board[i][j].isAlive()){
 					board[i][j].myDraw(g);
+					//reset g2 after drawing ability
 					AffineTransform originalAngle = g2.getTransform();
 					board[i][j].drawAbility(g2);
 					g2.setTransform(originalAngle);
+				//when a champion is being moved, show empty tiles
 				}else if (pickedChamp!=null){
 					field[i][j].myDraw(g);
 				}
 				
+				//if there is a champion and it's alive 
 				if (enemyBoard[i][j]!=null && enemyBoard[i][j].isAlive()){
 					enemyBoard[i][j].myDraw(g);
+					//reset g2 after drawing ability
 					AffineTransform originalAngle = g2.getTransform();
 					enemyBoard[i][j].drawAbility(g2);
 					g2.setTransform(originalAngle);
@@ -642,7 +669,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			autos.get(i).myDraw(g);
 		}
 		
-		//timer 
+		//in prep phase, draw timer/round/number of champions icon
 		if (!inGame || paused){
 			g2.setStroke(new BasicStroke(3));
 			//make drawing transparent
@@ -674,7 +701,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			else g2.drawString(displayTime, w/2-13, 118);
 		}
 		
-		//win or lose
+		//victory/defeat screen
 		if (win){
 			g.drawImage(victory.getImage(), 125, 185, null);
 		}
@@ -694,12 +721,16 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					for (int j=0; j<enemyChamps.size(); j++){
 						if (enemyChamps.get(j).isAlive()) nAlive++;
 					}
+					//if there are still enemies alive
 					if (nAlive>0){
 						Champion cur = boardChamps.get(i);
 						Champion target = this.findTarget(cur);
+						//update auto attack timer
 						cur.addTime(time);
+						//if not stunned and is alive, try to use ability
 						if (!cur.isStunned() && cur.isAlive()){
 							cur.useAbility();
+							//if in auto attack range, autoattack
 							if (cur.inAutoRange(target)){
 								if (cur.hasAuto()){
 									if (cur.getIsRanged())
@@ -709,9 +740,20 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 									}
 								}					
 							}
+							//not in auto attack range, move closer to target
 							else cur.move(target);
 						}
+						
+						//check if a jinx assisted the kill
+						else if (!cur.isAlive()){
+							for (int j=0; j<enemyChamps.size(); j++){
+								if (enemyChamps.get(j).getName().equals("Jinx")){
+									enemyChamps.get(j).checkIfAssisted(cur);
+								}
+							}
+						}
 					}else{
+						//player wins
 						timer.stop();
 						win = true;
 						paused = true;
@@ -726,12 +768,16 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					for (int j=0; j<nBoardChamps; j++){
 						if (boardChamps.get(j).isAlive()) nAlive++;
 					}
+					//if there are still player champions alive
 					if (nAlive>0){
 						Champion cur = enemyChamps.get(i);
 						Champion target = this.enemyFindTarget(cur);
+						//update autoattack timer
 						cur.addTime(time);
+						//if not stunned and is alive, try to use ability
 						if (!cur.isStunned() && cur.isAlive()){
 							cur.useAbility();
+							//if in auto attack range, autoattack
 							if (cur.inAutoRange(target)){
 								if (cur.hasAuto()){
 									if (cur.getIsRanged())
@@ -741,8 +787,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 									}
 								}					
 							}
+							//not in auto attack range, move closer to target
 							else cur.move(target);
 						}
+						//check if a jinx assisted the kill
 						else if (!cur.isAlive()){
 							for (int j=0; j<nBoardChamps; j++){
 								if (boardChamps.get(j).getName().equals("Jinx")){
@@ -752,6 +800,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						}
 					}
 					else{
+						//player loses
 						timer.stop();
 						lose = true;
 						paused = true;
@@ -768,6 +817,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			for (int i=0; i<autos.size(); i++){
 				Auto auto = autos.get(i);
 				Champion attacker = auto.getAttacker(), target = auto.getTarget();
+				//collision detection
 				if (auto.intersects(target.getHitBox())) {
 					autos.remove(auto);
 					attacker.hitsAuto(target);
@@ -777,8 +827,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		}
 		//before the round starts
 		else if (e.getSource()==preRound){
+			//battle starts
 			if (nSeconds==0){
-				//battle starts
+				//sets every champion's original position
 				for (int i=0; i<nBoardChamps; i++){
 					Champion cur = boardChamps.get(i);
 					cur.setOriginalPos(cur.getX(), cur.getY());
@@ -820,7 +871,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					for (int j=0; j<10; j++){
 						for (int k=0; k<3; k++){
 							if (field[j][k].contains(originalX, originalY)){
-								field[j][k].removeChamp();
+								field[j][k].removeChamp(); 
 								board[j][k] = null;
 							}
 						}
@@ -865,12 +916,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						//check if champion was from bench
 						for (int k=0; k<10; k++){
 							if (benchField[k].contains(originalX, originalY)){
-								//if board is not full
+								//if board is not full 
 								if (nBoardChamps<player.getLevel() && !inGame && !paused){
-									this.addToBoard(pickedChamp);
+									this.addToBoard(pickedChamp); //for traits/origins
 									pickedChamp.isOnBoard(true);
 									benchChamps.remove(pickedChamp);
 									this.refreshTraits();
+								//else return to original position
 								}else {
 									pickedChamp.setPos(originalX, originalY);
 									benchField[k].addChamp();
@@ -879,6 +931,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								}
 							}
 						}
+						//add champion to board if not full
 						if (!boardFull){
 							pickedChamp.setOriginalPos(field[i][j].getX(), field[i][j].getY());
 							pickedChamp.setPos(field[i][j].getX(), field[i][j].getY());
@@ -888,6 +941,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					}
 					//tile is taken by another champion
 					else{
+						//return to original position
 						pickedChamp.setPos(originalX, originalY);
 						for (int k=0; k<10; k++){
 							if (benchField[k].contains(originalX, originalY)){
@@ -911,6 +965,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				if (benchField[i].contains(mX, mY) && pickedChamp!=null){
 						
 					onTile = true;
+					//put on bench if empty
 					if (benchField[i].isEmpty()){
 						pickedChamp.setPos(benchField[i].getX(), benchField[i].getY());
 						benchField[i].addChamp();
@@ -920,7 +975,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						for (int j=0; j<10; j++){
 							for (int k=0; k<3; k++){
 								if (field[j][k].contains(originalX, originalY)){
-									this.removeFromBoard(pickedChamp);
+									this.removeFromBoard(pickedChamp); //for traits/origins
 									benchChamps.add(pickedChamp);
 									this.refreshTraits();
 								}
@@ -929,6 +984,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					}
 					//tile is taken by another champion
 					else{
+						//return to original position
 						pickedChamp.setPos(originalX, originalY);
 						for (int j=0; j<10; j++){
 							if (benchField[j].contains(originalX, originalY)){
@@ -945,6 +1001,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					}
 				}
 		}
+		
 		//sell champions if they are released on sell button
 		if(0<mX && mX<105 && 595<mY && mY<700){
 			player.gainGold(pickedChamp.getCost());
@@ -964,8 +1021,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			System.out.println(needUpdate);
 			pickedChamp=null;
 		}
+		
 		//if champion isn't released on any tile
 		if (pickedChamp!=null && !onTile){
+			//return to it's original position
 				pickedChamp.setPos(originalX, originalY);
 				for (int i=0; i<10; i++){
 					if (benchField[i].contains(originalX, originalY)){
@@ -987,6 +1046,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	//Mouse Motion Listener
 	public void mouseDragged(MouseEvent e) {
 
+		//dragging champion
 		if(pickedChamp!=null) {
 			pickedChamp.setPos(e.getX(), e.getY());
 		}
@@ -1016,14 +1076,13 @@ class Tile{
 		return y;
 	}
 	
+	//check if the tile is taken up by a champion
 	public boolean isEmpty(){
 		return isEmpty;
 	}
-	
 	public void addChamp(){
 		isEmpty = false;
 	}
-	
 	public void removeChamp(){
 		isEmpty = true;
 	}
@@ -1035,7 +1094,7 @@ class Tile{
 	
 	public void myDraw(Graphics g) {
 		g.setColor(Color.BLACK);
-    		g.drawRect(x, y, 85, 85);
+    	g.drawRect(x, y, 85, 85);
     }
 }
 
@@ -1056,6 +1115,7 @@ class Auto extends Rectangle{
 		y = attacker.getY()+42;
 	}
 	
+	//bullet moves towards target
 	public void move(){
 		dX = target.getX()+42-x;
 		dY = target.getY()+42-y;
@@ -1087,7 +1147,7 @@ class Champion implements ActionListener{
 	
 	protected Board board;
 	protected int x, y, originalX, originalY;
-	protected ImageIcon image;
+	protected ImageIcon image, star = new ImageIcon("star2.png");
 	protected String name;
 	protected int hp=0, level=0, ad=0, ap=0, armor = 0, mr = 0, curHP = 0, mana = 0, curMana = 0, range = 0, cost = 0;
 	protected double as = 0, originalAS;
@@ -1117,14 +1177,17 @@ class Champion implements ActionListener{
 	}
 	
 	public void actionPerformed(ActionEvent e){
+		//slash is gone
 		if (e.getSource()==hit){
 			isHit--;
 			hit.stop();
 		}
+		//not stunned anymore
 		else if (e.getSource()==stunned){
 			isStunned--;
 			stunned.stop();
 		}
+		//damage indicator disappears
 		else {
 			for (int i=0; i<nTimers; i++){
 				if (e.getSource()==timers.get(i)){
@@ -1137,18 +1200,12 @@ class Champion implements ActionListener{
 			}
 		}
 	}
-
+	
 	public boolean equals(Champion champion){
 		return (name==champion.getName() && level==champion.getLevel());
-	}
-	public void isEnemyChamp(){
-		isEnemy = true;
-	}
+	}	
 	
-	public void isOnBoard(boolean onBoard){
-		this.onBoard = onBoard;
-	}
-	
+	//reset champion to original state
 	public void reset(){
 		hp=originalHP; curHP = hp; ad=originalAD; ap=originalAP; armor =originalArmor; mr = originalMR; as = originalAS;
 		curHP = hp;
@@ -1159,10 +1216,12 @@ class Champion implements ActionListener{
 		alive = true;
 	}
 	
+	//counts time 
 	public void addTime(int time){
 		this.time += time;
 	}
 	
+	//Auto attacker timer - the higher the as(attackspeed), the faster the champion attacks
 	public boolean hasAuto(){
 		if (time>=1000/as){
 			time = 0;
@@ -1171,17 +1230,17 @@ class Champion implements ActionListener{
 		return false;
 	}
 	
+	//this champion gets stunned 
 	public void getStunned(double duration){
 		isStunned++;
 		stun = new ImageIcon("stun1.png");
+		//duration is number of seconds
 		stunned = new Timer((int)(1000*duration), this);
 		stunned.start();
 	}
+
 	
-	public boolean isStunned(){
-		return (isStunned>0);
-	}
-	
+	//slash animation
 	public void getHit(){
 		isHit++; 
 		if ((int)(Math.random()*2)==0) slash = new ImageIcon("slash.png");
@@ -1190,18 +1249,27 @@ class Champion implements ActionListener{
 		hit.start();
 	}
 	
+	//this champion takes damage
 	public void takeDmg(int damage, int type){
+		//physical damage
 		if (type==1){
 			damage -= damage*armor/150;
 		}
+		//magical damage 
 		else if (type==2){
 			damage -= damage*mr/100;
 		}
 		curHP-=damage;
+		
+		//champion dies
 		if (curHP<=0){
 			alive = false;
 		}
+		
+		//gains 1/15 of the damage taken as mana
 		this.setMana(curMana+damage/15);
+		
+		//damage indicator
 		isDamaged++;
 		damageTaken.add(damage);
 		damageType.add(type);
@@ -1215,29 +1283,40 @@ class Champion implements ActionListener{
 		if (curHP>hp) curHP = hp;
 	}
 	
+	//when the attack of this hits the target
 	public void hitsAuto(Champion target){
 		int type = 1;
+		//if the champion uses mana, increase mana
 		if (usesAbilities) curMana+=10;
+		//if glacial is active for this champion
 		if (glacial){
+			//25% chance to stun for 0.5 seconds
 			if ((int)(Math.random()*4)==0){
 				System.out.println(target + "stunned");
 				target.getStunned(0.5);
 			}
 		}
+		//if void is active for this champion, deal true damage (true damage ignores armor and magic resist)
 		if (void1){
 			type = 3;
 		}
+		//if demon is active for this champion
 		if (demon){
+			//20% chance to steal 20 mana when auto attacking
 			if ((int)(Math.random()*5)==0){
 			System.out.println("stole mana");
 			target.setMana(target.getCurMana()-20);
 			this.setMana(curMana+20);
 			}
 		}
+		
 		target.takeDmg(ad, type);
+		//melee champions have slash animation when they autoattack
 		if (!isRanged) target.getHit();
 		
+		//if blademaster is active for this champion
 		if (blademaster) {
+			//33% chance to autoattack an extra time
 			if ((int)(Math.random()*3)==0){
 				System.out.println("extra auto");
 				this.hitsAuto(target);
@@ -1245,14 +1324,20 @@ class Champion implements ActionListener{
 		}
 	}
 	
+	
+	//is overridden
 	public void useAbility(){
 		if (curMana>=mana){
 			curMana = 0;
 		}
 	}
+	
+	//is overridden
 	public void usePassive(){
-
+	
 	}
+	
+	//moves towards the target champion
 	public void move(Champion target){
 		int dX = target.getX()+42-(x+42);
 		int dY = target.getY()+42-(y+42);
@@ -1266,24 +1351,28 @@ class Champion implements ActionListener{
 		y += vY;
 	}
 	
+	//set original position for when the round resets
 	public void setOriginalPos(int x, int y){
 		originalX = x; 
 		originalY = y;
 	}
 	
+	//return to original position after the round resets
 	public void returnToOriginal(){
 		x = originalX;
 		y = originalY;
 	}
 	
+	//in range to attack
 	public boolean inAutoRange(Champion target){
 		int dX = x-target.getX();
 		int dY = y-target.getY();
 		return (Math.sqrt(Math.pow(dX,2)+Math.pow(dY,2))<=range);
 	}
 	
+	//is overridden by jinx
 	public void checkIfAssisted(Champion champ){
-		//is overridden by jinx
+		
 	}
 
 	/* traits and origins */
@@ -1351,6 +1440,14 @@ class Champion implements ActionListener{
 		}
 	}
 	
+	public void isEnemyChamp(){
+		isEnemy = true;
+	}
+	
+	public void isOnBoard(boolean onBoard){
+		this.onBoard = onBoard;
+	}
+	
 	/* get methods */
 	public String getName(){
 		return name;
@@ -1401,6 +1498,10 @@ class Champion implements ActionListener{
 		return alive;
 	}
 	
+	public boolean isStunned(){
+		return (isStunned>0);
+	}
+
 	/* positioning and display */
 	public void setPos(int x, int y){
 		this.x = x;
@@ -1440,6 +1541,10 @@ class Champion implements ActionListener{
 			//mana bar
 			g.setColor(Color.BLUE);
 			g.fillRect(x+15, y-5, curMana*60/mana, 4);
+		}
+		
+		for (int i=0; i<level; i++){
+			g.drawImage(star.getImage(), x+75+2+i*15, y-15, null);
 		}
 		
 		if (isHit>0){
@@ -1907,7 +2012,7 @@ class Kassadin extends Champion{
 }
 class Sivir extends Champion{
 	
-	private int velX, velY, aVel = 20, nShurikens = 0, aX, aY, count = 0;
+	private int velX, velY, aVel = 25, nShurikens = 0, aX, aY, count = 0;
 	private double shurikenAngle;
 	private Timer ability = new Timer(60, this);
 	private ImageIcon shuriken = new ImageIcon("shuriken.png");
@@ -1920,7 +2025,7 @@ class Sivir extends Champion{
 		name = "Sivir";
 		origin = 0; trait = 1;
 		isRanged = true;
-		originalHP=1000; originalAD=70;originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 70;cost = 1;
+		originalHP=1000; originalAD=70;originalAP=50; originalAS=1.5; originalArmor=10; originalMR=10; range = 300; mana = 100; cost = 1;
 		for (int i=1; i<level; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;

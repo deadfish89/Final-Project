@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.io.*;
 import java.awt.geom.RoundRectangle2D;
 
 public class Board extends JPanel implements ActionListener, MouseListener, MouseMotionListener{
@@ -39,18 +39,19 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	
 	private ArrayList<Auto> autos = new ArrayList<Auto>();
 	
-	public Board(Player player){
+	public Board(Player player) throws FileNotFoundException{
 	
 		//panel
 		this.setPreferredSize(new Dimension(850,595)); 
 		w = 850; h = 595; //this.getWidth() gives 0 for some reason
 		
 		this.player = player;
-		
-		/* temp add enemy champions */
+		EnemyTeam.loadTeams();
+		enemyChamps = EnemyTeam.getTeam(1,this);
+		/* temp add enemy champions 
 		enemyChamps.add(new Ashe(0,85,1, this));
 		enemyChamps.add(new Braum(85,85,1, this));
-		enemyChamps.add(new Jinx(85,170,1, this));
+		enemyChamps.add(new Jinx(85,170,1, this)); */
 		for (int i=0; i<enemyChamps.size(); i++){
 			enemyBoard[0][i]=enemyChamps.get(i);
 			enemyChamps.get(i).isEnemyChamp();
@@ -122,10 +123,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					}
 			}
 		
-			Champion temp = summon(champ,x,y,level);
+			Champion temp = SummonChamp.summon(champ,x,y,level,this);
 			while(checkLevel(temp)){
 				level++;
-				temp = summon(champ,x,y,level);
+				temp = SummonChamp.summon(champ,x,y,level,this);
 			}
 			bench[index] = temp;
 			benchField[index].addChamp();
@@ -174,73 +175,6 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		return false;
 	}
 
-	//create a new champion 
-	public Champion summon(int champ,int x,int y,int level){
-		Champion temp = null;
-		switch (champ){
-			case 0:
-				temp = new Annie(x, y, level, this);
-				break;
-			case 1:
-				temp = new Wukong(x, y, level, this);
-				break;
-			case 2:
-				temp = new Chogath(x, y, level, this);
-				break;
-			case 3:
-				temp = new Velkoz(x, y, level, this);
-				break;
-			case 4:
-				temp = new Brand(x, y, level, this);
-				break;
-			case 5:
-				temp = new Lux(x, y, level, this);
-				break;
-			case 6:	
-				temp = new Nautilus (x, y, level, this);
-				break;
-			case 7:
-				temp = new Syndra(x, y, level, this);
-				break;
-			case 8:
-				temp = new Varus(x, y, level, this);
-				break;
-			case 9:
-				temp = new Veigar(x, y, level, this);
-				break;
-			case 10:
-				temp = new Vi(x, y, level, this);
-				break;
-			case 11:
-				temp = new Qiyana(x, y, level, this);
-				break;
-			case 12:
-				temp = new Riven(x, y, level, this);
-				break;
-			case 13:
-				temp = new Braum(x, y, level, this);
-				break;
-			case 14:
-				temp = new Darius(x, y, level, this);
-				break;
-			case 15:
-				temp = new Kassadin(x, y, level, this);
-				break;
-			case 16:	
-				temp = new Sivir(x, y, level, this);
-				break;
-			case 17:
-				temp = new Jinx(x, y, level, this);
-				break;
-			case 18:
-				temp = new Yasuo(x, y, level, this);
-				break;
-			case 19:
-				temp = new Ashe(x, y, level, this);
-				break;
-		}
-		return temp;
-	}
 	
 	//when champion comes from bench to board
 	public void addToBoard(Champion champ){

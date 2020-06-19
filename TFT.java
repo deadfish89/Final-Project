@@ -2,6 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*; 
 import java.util.Arrays;
+import java.io.*;
 
 public class TFT{
 
@@ -23,7 +24,7 @@ public class TFT{
 		frame.repaint();
 		frame.pack();
 	}
-	public static void LoadGame(){
+	public static void LoadGame()  throws FileNotFoundException{
 		container.removeAll();
 		Player player = new Player();
 		Board board = new Board(player);

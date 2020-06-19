@@ -1731,7 +1731,7 @@ class Annie extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1753,7 +1753,7 @@ class Wukong extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1775,7 +1775,7 @@ class Chogath extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1797,7 +1797,7 @@ class Velkoz extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1819,7 +1819,7 @@ class Brand extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1840,7 +1840,7 @@ class Lux extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1861,7 +1861,7 @@ class Nautilus extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1882,7 +1882,7 @@ class Syndra extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1903,7 +1903,7 @@ class Varus extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1925,7 +1925,7 @@ class Veigar extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -1954,7 +1954,7 @@ class Vi extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2058,7 +2058,7 @@ class Qiyana extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2086,7 +2086,7 @@ class Riven extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2193,7 +2193,7 @@ class Braum extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2203,9 +2203,9 @@ class Braum extends Champion{
 	
 	public int takeDmg(int damage, int type){
 		
-		//only take 1% damage when shield is up
+		//only take 20% damage when shield is up
 		if (hasShield){
-			damage = (int)(damage*0.01);
+			damage = (int)(damage*0.20);
 			curHP-= damage;
 		}
 		else{
@@ -2321,7 +2321,7 @@ class Darius extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2433,7 +2433,7 @@ class Kassadin extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2473,7 +2473,7 @@ class Sivir extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2648,7 +2648,7 @@ class Jinx extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2743,7 +2743,7 @@ class Yasuo extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}
@@ -2825,7 +2825,7 @@ class Ashe extends Champion{
 			originalAD*=1.3;
 			originalAP*=1.3;
 			originalMR*=1.3;
-			originalAS*=1.3;
+			originalAS=Math.round(originalAS*130)/100.0;
 			originalArmor*=1.3;
 			cost+=2;
 		}

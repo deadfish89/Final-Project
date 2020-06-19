@@ -1491,6 +1491,10 @@ class Champion implements ActionListener{
 		return mr;
 	}
 	
+	public int getCurHP(){
+		return curHP;
+	}
+	
 	public int getHP(){
 		return hp;
 	}

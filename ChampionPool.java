@@ -1,16 +1,16 @@
 import java.util.Arrays;
 
 public class ChampionPool{
-	private static int[] champs = new int[19];
+	public static int[] champs = new int[19];
 	private static int[] commons, rares, epics;
 	private static Player player;
 	
 	public ChampionPool(Player player){
 		this.player = player;
-		commons = new int[] {12,13,14,15,16,17,18};
+		commons = new int[] {12,13,14,15,16,17,18,19};
 		rares = new int[] {4,5,6,7,8,9,10,11};
 		epics = new int[] {0,1,2,3};
-		champs = new int[] {30,30,30,30,30,30,30,30,30,20,20,20,20,20,20,20,10,10,10,10};
+		champs = new int[] {10,10,10,10,20,20,20,20,20,20,20,20,30,30,30,30,30,30,30,30};
 	}
 	
 	public int getNext(){
@@ -46,7 +46,6 @@ public class ChampionPool{
 			case 10:
 				common = 5; rare = 50; epic = 45;
 		}
-		
 		int rarity = (int)(Math.random()*100)+1;
 		while (true){
 			if (rarity<=rare+epic){
@@ -56,17 +55,16 @@ public class ChampionPool{
 					ret = rares[(int)(Math.random()*8)];
 				}
 			}else{
-				ret = commons[(int)(Math.random()*7)];
+				ret = commons[(int)(Math.random()*8)];
 			}
 			
 			if (champs[ret]>0){
-				champs[ret]--;
 				break;
 			}else {
 				System.out.println("NO MORE " + ret);
 			}
+			System.out.println(ret);
 		}
-		System.out.println("champion: " + ret);
 		return ret;
 	}
 	

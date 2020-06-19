@@ -1599,6 +1599,31 @@ class Champion implements ActionListener{
 		return level;
 	}
 	
+	public String printTrait(){
+		switch(trait){
+			case 0:return "Sorcerer";
+			case 1:return "Marksman";
+			case 2:return "Warden";
+			case 3:return "Brawler";
+			case 4:return "Assassin";
+			case 5:return "Blademaster";
+			default:return null;
+		}
+	}
+
+	public String printOrigin(){
+		switch(origin){
+			case 0:return "Elemental";
+			case 1:return "Glacial";
+			case 2:return "Demon";
+			case 3:return "Imperial";
+			case 4:return "Void";
+			case 5:return "Hextech";
+			case 6:return "Monkey";
+			default:return null;
+		}
+	}
+
 	public void displayStats(boolean display){
 		displayStats = display;
 	}
@@ -1658,6 +1683,30 @@ class Champion implements ActionListener{
 			g.setColor(new Color(250,250,210));
 			g.drawRect(displayX, displayY, 150, 80);
 			g.drawRect(displayX+1, displayY+1, 148, 78);
+			g.setColor(Color.BLACK);
+			g.setFont(new Font("SansSerif",Font.PLAIN,12));
+			g.drawString(name,displayX+5,displayY+15);
+			g.drawString("Level: "+level,displayX+70,displayY+15);
+			g.drawString(printOrigin(),displayX+5,displayY+27);
+			g.drawString(printTrait(),displayX+70,displayY+27);
+			g.drawString("HP: "+hp,displayX+5,displayY+39);
+			if(mana>1000){
+				g.drawString("Mana: None",displayX+70,displayY+39);
+			}
+			else{
+				g.drawString("Mana: "+mana,displayX+70,displayY+39);
+			}
+			g.drawString("AD: "+ad,displayX+5,displayY+51);
+			g.drawString("AP: "+ap,displayX+70,displayY+51);
+			g.drawString("Armor: "+armor,displayX+5,displayY+63);
+			g.drawString("MR: "+mr,displayX+70,displayY+63);
+			g.drawString("AS: "+as,displayX+5,displayY+75);
+			if(isRanged){
+				g.drawString("Ranged",displayX+70,displayY+75);
+			}
+			else{
+				g.drawString("Melee",displayX+70,displayY+75);
+			}
 		}
     }
 	

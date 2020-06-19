@@ -553,6 +553,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
+		AffineTransform originalAngle = g2.getTransform();
+		Paint originalPaint = g2.getPaint();
+		Stroke originalStroke = g2.getStroke();
 		
 		Font font;
 		g.setColor(Color.BLACK);
@@ -574,22 +577,24 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				//if there is a champion and it's alive 
 				if (board[i][j]!=null && board[i][j].isAlive()){
 					board[i][j].myDraw(g);
-					//reset g2 after drawing ability
-					AffineTransform originalAngle = g2.getTransform();
 					board[i][j].drawAbility(g2);
+					//reset g2 after drawing ability
 					g2.setTransform(originalAngle);
+					g2.setPaint(originalPaint);
+					g2.setStroke(originalStroke);
 				//when a champion is being moved, show empty tiles
 				}else if (pickedChamp!=null){
 					field[i][j].myDraw(g);
 				}
 				
-				//if there is a champion and it's alive 
+				//if there is an enemy champion and it's alive 
 				if (enemyBoard[i][j]!=null && enemyBoard[i][j].isAlive()){
 					enemyBoard[i][j].myDraw(g);
-					//reset g2 after drawing ability
-					AffineTransform originalAngle = g2.getTransform();
 					enemyBoard[i][j].drawAbility(g2);
+					//reset g2 after drawing ability
 					g2.setTransform(originalAngle);
+					g2.setPaint(originalPaint);
+					g2.setStroke(originalStroke);
 				}
 			}
 		}
@@ -641,6 +646,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			g2.setFont(font);
 			if (nSeconds>=10) g2.drawString(displayTime, w/2-28, 118);
 			else g2.drawString(displayTime, w/2-13, 118);
+			g2.setStroke(originalStroke);
 		}
 		
 		//draw champion being hovered again to make sure it draws over everything else

@@ -1782,7 +1782,15 @@ class Lux extends Champion{
 		curHP = hp;
 	}
 }
+
 class Nautilus extends Champion{
+	
+	private Timer ability = new Timer(16, this);
+	private int count, targetX, targetY, aVel = 5;
+	private double distance;
+	private Champion target = null;
+	private boolean reachedTarget = false;
+	
 	public Nautilus(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("nautilus.png");
@@ -1802,15 +1810,91 @@ class Nautilus extends Champion{
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
 	}
+	
+	public void useAbility(){
+		if (curMana>=mana){
+			curMana = 0;
+			count = 0;
+			reachedTarget = false;
+			target = board.findFurthest(this, isEnemy);
+			ability.start();
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		//slash is gone
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		//not stunned anymore
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		//damage indicator disappears
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+		}
+		if (e.getSource()==ability){
+			
+			distance = Math.sqrt(Math.pow(x-targetX, 2) + Math.pow(y-targetY,2));
+			targetX = target.getX(); targetY = target.getY();
+			
+			//reaches target
+			if (!reachedTarget && count>=distance/aVel){
+				reachedTarget = true;
+				target.getStunned(3);
+				target.takeDmg(ap*2, 2);
+				count = 0;
+			}
+			
+			//has reached target
+			if (reachedTarget){
+				//makes target go up
+				if (count<50){
+					targetY-=2;
+					target.setPos(targetX, targetY);
+				}
+				//makes target come down
+				else if(count>60){
+					targetY+=2;
+					target.setPos(targetX, targetY);
+				}
+				//stops ability when target lands
+				if(count>110){
+					ability.stop();
+				}
+			}
+			count++;
+		}
+	}
 }
+
 class Syndra extends Champion{
+	
+	private BufferedImage textureImage;
+	private TexturePaint ballTexture;
+	private int aX1, aY1, aX2, aY2, aX3, aY3, aVel = 7, nBalls;
+	private double vX1, vY1, vX2, vY2, vX3, vY3;
+	private Champion target;
+	private Timer ability = new Timer(16, this);
+	
 	public Syndra(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("syndra.png");
 		name = "Syndra";
 		origin = 2; trait = 0;
 		isRanged = true;
-		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 300;  mana = 100;cost = 3;
+		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR=10; range = 300;  mana = 100; cost = 3;
 		for (int i=1; i<level; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1822,9 +1906,121 @@ class Syndra extends Champion{
 		}
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
+		
+		try{
+			textureImage = ImageIO.read(new File("syndraRTexture.jpg"));
+		} 
+		catch (IOException ex) {
+			System.out.println("ERROR");
+        }
+	}
+	
+	public void useAbility(){
+		if (curMana>=mana){
+			curMana = 0;
+			nBalls = 3;
+			
+			//find furthest target
+			target = board.findFurthest(this, isEnemy);
+			
+			//balls start at the 3 balls on the image
+			aX1 = x; aY1 = y+55;
+			aX2 = x+55; aY2 = y;
+			aX3 = x+60; aY3 = y+60;
+			
+			ability.start();
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		//slash is gone
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		//not stunned anymore
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		//damage indicator disappears
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+		}
+		if (e.getSource()==ability){
+			//constantly calculate angle for homing missile effect
+			int dX = target.getX()-aX1, dY = target.getY()-aY1;
+			double angle = Math.atan2(dY, dX)*(180/Math.PI);
+			vX1 = ((aVel*(90-Math.abs(angle))/90));
+			if (angle<=0) vY1 = Math.abs(vX1)-aVel;
+			else vY1 = aVel-Math.abs(vX1);
+			
+			dX = target.getX()-aX2; dY = target.getY()-aY2;
+			angle = Math.atan2(dY, dX)*(180/Math.PI);
+			vX2 = ((aVel*(90-Math.abs(angle))/90));
+			if (angle<=0) vY2 = Math.abs(vX2)-aVel;
+			else vY2 = aVel-Math.abs(vX2);
+			
+			dX = target.getX()-aX3; dY = target.getY()-aY3;
+			angle = Math.atan2(dY, dX)*(180/Math.PI);
+			vX3 = ((aVel*(90-Math.abs(angle))/90));
+			if (angle<=0) vY3 = Math.abs(vX3)-aVel;
+			else vY3 = aVel-Math.abs(vX3);
+			
+			aX1+=vX1; aY1+=vY1;
+			aX2+=vX2; aY2+=vY2;
+			aX3+=vX3; aY3+=vY3;
+			
+			//when it reaches the target
+			if (target.getHitBox().contains(aX1+10, aY1+10)){
+				target.takeDmg((int)(1.5*ap), 2);
+				nBalls--;
+			}
+			if (target.getHitBox().contains(aX2+10, aY2+10)){
+				target.takeDmg((int)(1.5*ap), 2);
+				nBalls--;
+			}
+			if (target.getHitBox().contains(aX3+10, aY3+10)){
+				target.takeDmg((int)(1.5*ap), 2);
+				nBalls--;
+			}
+			//once all balls have reached the target, ability stops
+			if (nBalls==0){
+				ability.stop();
+			}
+		}
+	}
+	
+	public void drawAbility(Graphics2D g2){
+		if (nBalls>0){
+			ballTexture = new TexturePaint(textureImage, new Rectangle(0, 0, 20, 20));
+			g2.setPaint(ballTexture);
+			g2.fillOval(aX1, aY1, 20, 20);
+			g2.fillOval(aX2, aY2, 20, 20);
+			g2.fillOval(aX3, aY3, 20, 20);
+		}
 	}
 }
+
 class Varus extends Champion{
+	
+	private BufferedImage textureImage;
+	private TexturePaint arrowTexture;
+	private Timer ability = new Timer(16, this);
+	private boolean abilityActive = false;
+	private int aX, aY, aVel = 7, count = 0;
+	private double angle, vX, vY;
+	private ArrayList<Champion> gotHit = new ArrayList<>();
+	private Champion target;
+	
 	public Varus(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("varus.png");
@@ -1843,10 +2039,130 @@ class Varus extends Champion{
 		}
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
+		try{
+			textureImage = ImageIO.read(new File("VarusQTexture.jpg"));
+		} 
+		catch (IOException ex) {
+			System.out.println("ERROR");
+        }
 	}
 	
+	public void useAbility(){
+		if (curMana>=mana){
+			gotHit.clear();
+			curMana = 0;
+			count = 0;
+			aX = x+42;
+			aY = y+42;
+			//find furthest target
+			target = board.findFurthest(this, isEnemy);
+			//calculate angle 
+			int dX = target.getX()+42-aX, dY = target.getY()+42-aY;
+			angle = Math.atan2(dY, dX)*(180/Math.PI);
+			vX = ((aVel*(90-Math.abs(angle))/90));
+			if (angle<=0) vY = Math.abs(vX)-aVel;
+			else vY = aVel-Math.abs(vX);
+			
+			abilityActive = true;
+			ability.start();
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		//slash is gone
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		//not stunned anymore
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		//damage indicator disappears
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+		}
+		if (e.getSource()==ability){
+			aX += vX;
+			aY += vY;
+			count++;
+			
+			//collision detection
+			if (isEnemy){
+				for (int i=0; i<board.nBoardChamps;i++){
+					Champion cur = board.boardChamps.get(i);
+					boolean hit = false;
+					if (cur.getHitBox().contains(aX, aY) || cur.getHitBox().contains(aX, aY+20)){
+						for (int j=0; j<gotHit.size(); j++){
+							if (gotHit.get(j)==cur){
+								hit = true;
+							}
+						}
+						if (!hit){
+							cur.takeDmg(4*ap, 2);
+							gotHit.add(cur);
+						}
+					}
+				}
+			}
+			else {
+				for (int i=0; i<board.enemyChamps.size(); i++){
+					Champion cur = board.enemyChamps.get(i);
+					boolean hit = false;
+					if (cur.getHitBox().contains(aX, aY) || cur.getHitBox().contains(aX, aY+20)){
+						for (int j=0; j<gotHit.size(); j++){
+							if (gotHit.get(j)==cur){
+								hit = true;
+							}
+						}
+						if (!hit){
+							cur.takeDmg(4*ap, 2);
+							gotHit.add(cur);
+						}
+					}
+				}
+			}
+			
+			if (count>55){
+				aVel--;
+			}
+			//disappears after about a second
+			if (count>62){
+				ability.stop();
+				abilityActive = false;
+				aVel = 7;
+			}
+		}
+	}
+	
+	public void drawAbility(Graphics2D g2){
+		if (abilityActive){
+			arrowTexture = new TexturePaint(textureImage, new Rectangle(0, 0, 90, 60));
+			g2.setPaint(arrowTexture);
+			g2.rotate(Math.toRadians(angle), aX+40, aY+5);
+			g2.fillRoundRect(aX, aY, 80, 10, 5, 5);
+		}
+	}
 }
+
 class Veigar extends Champion{
+	
+	private ImageIcon abilityImage = new ImageIcon("veigarUlt.png");
+	private int aX, aY, aVel = 7;
+	private double vX, vY;
+	private Champion target;
+	private Timer ability = new Timer(16, this);
+	private boolean abilityActive = false;
+	
 	public Veigar(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("veigar.png");
@@ -1865,6 +2181,75 @@ class Veigar extends Champion{
 		}
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
+	}
+	
+	public void useAbility(){
+		if (curMana>=mana){
+			curMana = 0;
+			
+			//find closest target
+			if (isEnemy){
+				target = board.enemyFindTarget(this);
+			}
+			else{
+				target = board.findTarget(this);
+			}
+			
+			aX = x+22; aY = y+22;
+			
+			abilityActive = true;
+			ability.start();
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		//slash is gone
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		//not stunned anymore
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		//damage indicator disappears
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+		}
+		if (e.getSource()==ability){
+			//constantly calculate angle for homing missile effect
+			int dX = target.getX()-aX, dY = target.getY()-aY;
+			double angle = Math.atan2(dY, dX)*(180/Math.PI);
+			vX = ((aVel*(90-Math.abs(angle))/90));
+			if (angle<=0) vY = Math.abs(vX)-aVel;
+			else vY = aVel-Math.abs(vX);
+			
+			aX += vX;
+			aY += vY;
+			
+			//when it reaches the target
+			if (target.getHitBox().contains(aX+20, aY+20)){
+				//target also takes 30% of their missing hp as extra damage
+				target.takeDmg((int)(5*ap+0.3*(target.getHP()-target.getCurHP())), 2);
+				abilityActive = false;
+				ability.stop();
+			}
+		}
+	}
+	
+	public void drawAbility(Graphics2D g2){
+		if (abilityActive){
+			g2.drawImage(abilityImage.getImage(), aX, aY, null);
+		}
 	}
 }
 
@@ -1901,7 +2286,6 @@ class Vi extends Champion{
 			curMana = 0;
 			count = 0;
 			target = board.findFurthest(this, isEnemy);
-			targetX = target.getX(); targetY = target.getY();
 			int dX = targetX-x, dY = targetY-y;
 			
 			//calculate angle to target
@@ -1938,6 +2322,8 @@ class Vi extends Champion{
 			}
 		}
 		if (e.getSource()==ability){
+			
+			targetX = target.getX(); targetY = target.getY();
 			
 			//reaches target
 			if (!reachedTarget && this.getHitBox().intersects(target.getHitBox())){

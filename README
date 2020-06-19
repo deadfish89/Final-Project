@@ -1,14 +1,23 @@
 # Final-Project
-STUFF TO DO:  
+STUFF TO DO: 
+HI COPY EVERYTHING BC I ADDED ASHE 
 
 Fighting
--abilities** find champion classes at the bottom of board.java - I'll try to do the rest of them
+-abilities** find champion classes at the bottom of board.java
+-make champions not overlap each other when fighting (like minion block) - maybe this is too hard
 
 Game
 oh true good idea - I think we should make levels with semi-random ai teams(like pick from a small list)
--ill start making teams now
 
 Menu
-Improve instructions - might do more later
+Improve instructions
 
+Other
+-make effect for elemental origin 
+
+
+
+Notes
+Graphics 2 
+-texture brush, gradiant brush, and other stuff to make it look good later
 

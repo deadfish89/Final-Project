@@ -42,8 +42,7 @@ June 17:
 Bryan made Yasuo, Sivir, Darius ability, fixed minor bugs
 Eric made selling champions and improved shop
 
+
 June 18:
 Bryan made stars for levels and started to make hover stats display
 Eric made levelling up champions and elemental effect
-
-

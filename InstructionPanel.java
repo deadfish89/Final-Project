@@ -16,7 +16,7 @@ class InstructionPanel extends JPanel implements ActionListener{
         	bottomtext = new JLabel("All champions and art belong to Riot Games. Pls dont sue me.");
 		returnMenu.addActionListener(this);
 
-		this.setBackground(Color.ORANGE);
+		this.setBackground(Color.WHITE);
         	this.setLayout(null);
 
 		//dont understand how setbounds works but its fine ig
@@ -52,6 +52,6 @@ class InstructionPanel extends JPanel implements ActionListener{
             if(event.getSource()==returnMenu){
 		TFT.LoadMenu();
             }
-    }
+    	}             
 }
 

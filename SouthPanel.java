@@ -238,6 +238,7 @@ class Shop extends JPanel implements ActionListener{
 		items[16] = new ImageIcon("sivir.png");
 		items[17] = new ImageIcon("jinx.png");
 		items[18] = new ImageIcon("yasuo.png");
+		items[19] = new ImageIcon("ashe.png");
 		
 		loadImages();
 		
@@ -282,6 +283,8 @@ class Shop extends JPanel implements ActionListener{
 					player.spendGold(price[inShop[i]]);
 					leftPanel2.redisplay();
 					shopItems[i].setVisible(false);
+					ChampionPool.champs[inShop[i]]--;
+					System.out.println(champPool.champs[inShop[i]]);
 				}
 			}
 		}

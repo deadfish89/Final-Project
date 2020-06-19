@@ -9,7 +9,7 @@ import java.awt.geom.RoundRectangle2D;
 
 public class Board extends JPanel implements ActionListener, MouseListener, MouseMotionListener{
 	
-	private Timer timer, preRound, pause, hoverTimer = new Timer(500, this);
+	private Timer timer, preRound, pause, hoverTimer = new Timer(1000, this);
 	private int nSeconds = 30;
 	private boolean win = false, lose = false, inGame = false, paused = false, needReset = false;
 	public boolean needUpdate = false;
@@ -31,7 +31,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private Tile[][] enemyField = new Tile[10][3];
 	private Tile[] benchField = new Tile[10];
 	private Champion[] bench = new Champion[10];
-	private Champion pickedChamp = null, hoverChamp = null;
+	public static Champion pickedChamp = null, hoverChamp = null;
 	private ArrayList<Champion> champs = new ArrayList<Champion>();
 	private ArrayList<Champion> benchChamps = new ArrayList<Champion>();
 	public static int w, h;
@@ -705,6 +705,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			else g2.drawString(displayTime, w/2-13, 118);
 		}
 		
+		//draw champion being hovered again to make sure it draws over everything else
+		if (hoverChamp!=null)
+			hoverChamp.myDraw(g);
+		
 		//victory/defeat screen
 		if (win){
 			g.drawImage(victory.getImage(), 125, 185, null);
@@ -858,8 +862,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			else nSeconds--;
 		}
 		else if (e.getSource()==hoverTimer){
-			hoverChamp.displayStats(true);
-			System.out.println("display stats " + hoverChamp);
+			//if mouse is in screen, display stats
+			if (mX>=0 && mY>=0)
+				hoverChamp.displayStats(true);
 		}
 		repaint();
 	}
@@ -907,7 +912,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	
 	public void mouseClicked(MouseEvent e){}
 	public void mouseEntered(MouseEvent e){}
-    public void mouseExited(MouseEvent e){}
+    public void mouseExited(MouseEvent e){
+		//give mX and mY impossible values if they leave panel
+		if (e.getSource()==this){
+			mX=-100;
+			mY=-100;
+		}
+	}
 	
     public void mouseReleased(MouseEvent e){
 		mX = e.getX();
@@ -966,6 +977,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				}
 				}
 				}
+			//reset hoverTimer if released 
+			if (hoverChamp!=null){
+				hoverChamp.displayStats(false);
+				hoverChamp = pickedChamp;
+				hoverTimer.stop();
+				hoverTimer.start();
+			}	
 		}
 		
 		//champion released on bench
@@ -1008,6 +1026,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						}
 					}
 				}
+			//reset hoverTimer if released 
+			if (hoverChamp!=null){
+				hoverChamp.displayStats(false);
+				hoverChamp = pickedChamp;
+				hoverTimer.stop();
+				hoverTimer.start();
+			}	
 		}
 		
 		//sell champions if they are released on sell button
@@ -1047,6 +1072,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					}
 				}
 			}
+		
 		pickedChamp = null;
 		repaint();
 	}
@@ -1062,12 +1088,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	}
 	
 	public void mouseMoved(MouseEvent e) {
-		int mX = e.getX(), mY = e.getY();
+		 mX = e.getX(); mY = e.getY();
 		
-		//if mouse moves, stop the timer
-		if (hoverTimer.isRunning()){
+		//if mouse moves, stop displaying
+		if (hoverChamp!=null){
 			hoverTimer.stop();
 			hoverChamp.displayStats(false);
+			hoverChamp = null;
 		}
 		
 		//if mouse hovers a player champion on the board
@@ -1094,7 +1121,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				hoverChamp = cur;
 			}
 		}
-		
+		repaint();
 	}
 	
 }
@@ -1335,7 +1362,6 @@ class Champion implements ActionListener{
 		if (glacial){
 			//20% chance to stun for 0.5 seconds
 			if ((int)(Math.random()*5)==0){
-				System.out.println(target + "stunned");
 				target.getStunned(0.5);
 			}
 		}
@@ -1347,7 +1373,6 @@ class Champion implements ActionListener{
 		if (demon){
 			//20% chance to steal 20 mana when auto attacking
 			if ((int)(Math.random()*5)==0){
-			System.out.println("stole mana");
 			target.setMana(target.getCurMana()-20);
 			this.setMana(curMana+20);
 			}
@@ -1361,7 +1386,6 @@ class Champion implements ActionListener{
 		if (blademaster) {
 			//33% chance to autoattack an extra time
 			if ((int)(Math.random()*3)==0){
-				System.out.println("extra auto");
 				this.hitsAuto(target);
 			}
 		}
@@ -1599,14 +1623,17 @@ class Champion implements ActionListener{
 			g.fillRect(x+15, y-5, curMana*60/mana, 4);
 		}
 		
+		//draw stars to display level
 		for (int i=0; i<level; i++){
 			g.drawImage(star.getImage(), x+75+2+i*15, y-15, null);
 		}
-		
+		//draw slash from melee attack
 		if (isHit>0){
 			g.drawImage(slash.getImage(), x, y, null);
 		}
+		//draw stunned icon
 		if (isStunned>0) g.drawImage(stun.getImage(), x, y-30, null);
+		//draw damage indicators
 		if (isDamaged>0) {
 			for (int i=0; i<damageTaken.size(); i++){
 				if (damageType.get(i)==1) g.setColor(Color.RED);
@@ -1616,9 +1643,21 @@ class Champion implements ActionListener{
 			}
 		}
 		
-		//if mouse is hovers champion for more than a second
-		if (displayStats){
+		//if mouse hovers champion for more than a second
+		if (displayStats && board.pickedChamp==null){
+			int displayX, displayY = y;
+			if (x+85+160<=board.w){
+				displayX = x+85+10;
+			}
+			else{
+				displayX = x-160;
+			}
 			
+			g.setColor(new Color(189,183,107));
+			g.fillRect(displayX, displayY, 150, 80);
+			g.setColor(new Color(250,250,210));
+			g.drawRect(displayX, displayY, 150, 80);
+			g.drawRect(displayX+1, displayY+1, 148, 78);
 		}
     }
 	
@@ -2587,7 +2626,6 @@ class Jinx extends Champion{
 	
 	//attack speed doubles when killing a champion or assisting on a kill
 	public void usePassive(){
-		System.out.println("used passive");
 		passiveIsActive = true;
 		as *= 2;
 		passive.start();

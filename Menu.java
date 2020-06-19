@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 class Menu extends JPanel implements ActionListener {
     private JLabel title;
@@ -36,12 +37,16 @@ class Menu extends JPanel implements ActionListener {
 	g.setFont(new Font("SansSerif",Font.PLAIN,20));
 	g.drawString("By:Bryan Jiang and Eric Chen",1000,650);
     }
-    public void actionPerformed(ActionEvent event) {
+    public void actionPerformed(ActionEvent event){
+	    try{
             if(event.getSource()==play){
 		TFT.LoadGame();
             }
             if(event.getSource()==instruction){
                 TFT.LoadInstructions();
-            }
+            	}
+	    }
+	    catch(FileNotFoundException e){
+		}
     }
 }

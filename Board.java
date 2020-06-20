@@ -501,7 +501,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		for (int i=0; i<enemyChamps.size(); i++){
 			Champion cur = enemyChamps.get(i);
 			double curDis = Math.sqrt(Math.pow(attacker.getX()-cur.getX(), 2) + Math.pow(attacker.getY()-cur.getY(), 2));
-			if (cur.isAlive() && curDis < dis){
+			if (cur.isAlive() && curDis < dis && cur!=attacker){
 				dis = curDis;
 				target = cur;
 			}
@@ -516,7 +516,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		for (int i=0; i<nBoardChamps; i++){
 			Champion cur = boardChamps.get(i);
 			double curDis = Math.sqrt(Math.pow(attacker.getX()-cur.getX(), 2) + Math.pow(attacker.getY()-cur.getY(), 2));
-			if (cur.isAlive() && curDis < dis){
+			if (cur.isAlive() && curDis < dis && cur!=target){
 				dis = curDis;
 				target = cur;
 			}
@@ -559,7 +559,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		
 		Font font;
 		g.setColor(Color.BLACK);
-
+			
 		//background
 		g.drawImage(bg.getImage(), 0, -1, w, h-83, null);
 		
@@ -1068,6 +1068,19 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		repaint();
 	}
 	
+	public static boolean lineCollision(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
+		//find direction of lines
+		double d1 = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+		double d2 = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+
+		//check for collision
+		if (d1 >= 0 && d1 <= 1 && d2 >= 0 && d2 <= 1){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}	
 }
 
 class Tile{
@@ -1733,6 +1746,11 @@ class Chogath extends Champion{
 }
 
 class Velkoz extends Champion{
+	
+	private int cX, cY, aX, aY, count = 0;
+	private Timer ability = new Timer(16, this);
+	private boolean abilityActive = false;
+	
 	public Velkoz(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("vel'koz.png");
@@ -1752,16 +1770,41 @@ class Velkoz extends Champion{
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
 	}
+	
+	public void useAbility(){
+		if (curMana>=mana){
+			curMana = 0;
+			count = 0;
+			
+			abilityActive = true;
+			ability.start();
+		}
+	}
+	/*
+	boolean left =   lineCollision(cX,cY,aX,aY, cur.getX(),cur.getY(),cur.getX(), cur.getY()+85);
+	boolean right =  lineCollision(cX,cY,aX,aY, cur.getX()+85,cur.getY(), cur.getX()+85,cur.getY()+85);
+	boolean top =    lineCollision(cX,cY,aX,aY, cur.getX(),cur.getY(), cur.getX()+85,cur.getY());
+	boolean bottom = lineColllision(cX,cY,aX,aY, cur.getX(),cur.getY()+85, cur.getX()+85,cur.getY()+85);
+	*/
 }
 
 class Brand extends Champion{
+	
+	private ImageIcon abilityImage = new ImageIcon("brandR.png");
+	private int aX, aY, aVel = 4, count = 0;
+	private double vX, vY, angle;
+	private Champion target;
+	private Timer ability = new Timer(16, this);
+	private boolean abilityActive = false;
+	private ArrayList<Champion> gotHit = new ArrayList<>();
+	
 	public Brand(int x, int y, int level, Board board){
 		super(x, y, level, board);
 		image = new ImageIcon("brand.png");
 		name = "Brand";
 		origin = 0; trait = 0;
 		isRanged = true;
-		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR = 10; range = 300; mana = 120;cost = 3;
+		originalHP=1250; originalAD=70; originalAP=75; originalAS=1; originalArmor=10; originalMR = 10; range = 300; mana = 70/*120*/;cost = 3;
 		for (int i=1; i<level; i++){
 			originalHP*=1.3;
 			originalAD*=1.3;
@@ -1774,7 +1817,129 @@ class Brand extends Champion{
 		hp = originalHP; ad = originalAD; ap = originalAP; mr = originalMR; as = originalAS; armor = originalArmor;
 		curHP = hp;
 	}
+	
+	public void useAbility(){
+		if (curMana>=mana){
+			gotHit.clear();
+			curMana = 0;
+			count = 0;
+			
+			//find closest target
+			if (isEnemy){
+				target = board.enemyFindTarget(this);
+			}
+			else{
+				target = board.findTarget(this);
+			}
+			System.out.println(target);
+			
+			aX = x+22; aY = y+24;
+			
+			abilityActive = true;
+			ability.start();
+		}
+	}
+	
+	public void actionPerformed(ActionEvent e){
+		//slash is gone
+		if (e.getSource()==hit){
+			isHit--;
+			hit.stop();
+		}
+		//not stunned anymore
+		else if (e.getSource()==stunned){
+			isStunned--;
+			stunned.stop();
+		}
+		//damage indicator disappears
+		else {
+			for (int i=0; i<nTimers; i++){
+				if (e.getSource()==timers.get(i)){
+					damageTaken.remove(i);
+					damageType.remove(i);
+					nTimers--;
+					timers.get(i).stop();
+					timers.remove(i);
+				}
+			}
+		}
+		if (e.getSource()==ability){
+			//constantly calculate angle for homing missile effect
+			int dX = target.getX()-aX, dY = target.getY()-aY;
+			angle = Math.atan2(dY, dX)*(180/Math.PI);
+			vX = ((aVel*(90-Math.abs(angle))/90));
+			if (angle<=0) vY = Math.abs(vX)-aVel;
+			else vY = aVel-Math.abs(vX);
+			
+			aX += vX;
+			aY += vY;
+			
+			//when it reaches the target
+			if (target.getHitBox().contains(aX+20, aY+18)){
+					target.takeDmg(4*ap, 2);
+					count++;
+					//bounced 5/6/7 times depending on level
+					if (count>=4+level){
+						abilityActive = false;
+						ability.stop();
+					}else{
+						//find a new target to bounce to
+						while (true){
+							if (isEnemy){
+								target = board.enemyFindTarget(target);
+							}
+							else{
+								target = board.findTarget(target);
+								System.out.println(target);
+							}
+							boolean hit = false;
+							for (int i=0; i<gotHit.size(); i++){
+								if (gotHit.get(i)==target){
+									hit = true;
+								}
+							}
+							//if target hasn't been hit 
+							if (!hit){
+								break;
+							}
+							else{
+								//check if all champions have been hit
+								int nAlive = 0;
+								if (isEnemy){
+									for (int i=0; i<board.nBoardChamps; i++){
+										if (board.boardChamps.get(i).isAlive()) nAlive++;
+									}
+								}
+								else{
+									for (int i=0; i<board.enemyChamps.size(); i++){
+										if (board.enemyChamps.get(i).isAlive()) nAlive++;
+									}
+								}
+								System.out.println(nAlive);
+								System.out.println(gotHit.size());
+								//if yes, let all targets be hit again
+								if (nAlive==gotHit.size() && nAlive!=1){
+									gotHit.clear();
+								}
+							}
+						}
+					}
+					if (target==null){
+						ability.stop();
+						abilityActive = false;
+					}
+			}
+		}
+	}
+	
+	public void drawAbility(Graphics2D g2){
+		if (abilityActive){
+			g2.rotate(5, aX+20, aY+18);
+			g2.drawImage(abilityImage.getImage(), aX, aY, null);
+		}
+	}
 }
+
 class Lux extends Champion{
 	public Lux(int x, int y, int level, Board board){
 		super(x, y, level, board);
